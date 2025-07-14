@@ -12,13 +12,14 @@ import os
 
 # Detectar si tenemos OpenAI API key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-USE_MOCK_AI = not OPENAI_API_KEY or OPENAI_API_KEY.startswith("sk-test-placeholder")
+USE_MOCK_AI = not OPENAI_API_KEY or OPENAI_API_KEY.startswith("your_openai_api_key_here")
 
 if USE_MOCK_AI:
     print("⚠️ Usando Mock AI Service - Configura OPENAI_API_KEY para IA real")
     from agents.mock_ai_service import mock_financial_advisor
     from agents.financial_advisor import FinancialMetrics, UnitEconomics, BusinessContext
 else:
+    print("✅ Usando IA Real - OpenAI API Key configurada")
     from agents.financial_advisor import (
         FinancialAdvisorService, 
         FinancialMetrics, 
@@ -107,11 +108,31 @@ async def analyze_business_health(request: BusinessAnalysisRequest):
 async def optimize_pricing(request: PricingOptimizationRequest):
     """Optimización de estrategia de precios"""
     try:
-        recommendations = await financial_advisor_service.optimize_pricing_strategy(
-            current_pricing=request.current_pricing,
-            cost_structure=request.cost_structure,
-            market_data=request.market_data
-        )
+        if USE_MOCK_AI:
+            # Simular optimización de precios
+            recommendations = [
+                {
+                    "category": "pricing",
+                    "priority": "Alta",
+                    "title": "Optimización de Precios (Simulado)",
+                    "description": "Análisis de precios basado en estructura de costos actual",
+                    "potential_impact": "Incremento estimado en margen del 5-15%",
+                    "implementation_steps": [
+                        "Revisar precios competitivos del mercado",
+                        "Calcular margen de contribución óptimo",
+                        "Implementar pruebas A/B de precios"
+                    ],
+                    "estimated_time": "2-4 semanas",
+                    "risk_level": "Medio"
+                }
+            ]
+        else:
+            # Usar IA real
+            recommendations = await financial_advisor_service.optimize_pricing_strategy(
+                current_pricing=request.current_pricing,
+                cost_structure=request.cost_structure,
+                market_data=request.market_data
+            )
         
         return {
             "recommendations": recommendations,
@@ -125,11 +146,31 @@ async def optimize_pricing(request: PricingOptimizationRequest):
 async def analyze_growth_opportunities(request: GrowthAnalysisRequest):
     """Análisis de oportunidades de crecimiento"""
     try:
-        opportunities = await financial_advisor_service.analyze_growth_opportunities(
-            current_metrics=request.current_metrics,
-            growth_data=request.growth_data,
-            objectives=request.objectives
-        )
+        if USE_MOCK_AI:
+            # Simular análisis de crecimiento
+            opportunities = [
+                {
+                    "category": "growth",
+                    "priority": "Alta",
+                    "title": "Optimización de Adquisición (Simulado)",
+                    "description": "Mejorar eficiencia en canales de marketing digital",
+                    "potential_impact": "Reducción del 20-30% en COCA",
+                    "implementation_steps": [
+                        "Analizar ROI por canal de marketing",
+                        "Optimizar campañas de mayor rendimiento",
+                        "Implementar automatización de marketing"
+                    ],
+                    "estimated_time": "1-3 meses",
+                    "risk_level": "Bajo"
+                }
+            ]
+        else:
+            # Usar IA real
+            opportunities = await financial_advisor_service.analyze_growth_opportunities(
+                current_metrics=request.current_metrics,
+                growth_data=request.growth_data,
+                objectives=request.objectives
+            )
         
         return {
             "opportunities": opportunities,
@@ -143,26 +184,44 @@ async def analyze_growth_opportunities(request: GrowthAnalysisRequest):
 async def analyze_cash_flow(request: CashFlowAnalysisRequest):
     """Análisis integral de flujo de caja"""
     try:
-        # Generar proyecciones básicas
-        projections = await cash_flow_advisor_service.generate_cash_flow_forecast(
-            historical_data=request.historical_data,
-            assumptions={"starting_balance": request.current_balance},
-            forecast_months=6
-        )
-        
-        # Análisis completo
-        analysis = await cash_flow_advisor_service.analyze_cash_flow_health(
-            historical_data=request.historical_data,
-            current_balance=request.current_balance,
-            projections=projections,
-            business_context=request.business_context
-        )
-        
-        # KPIs adicionales
-        kpis = cash_flow_advisor_service.calculate_cash_flow_kpis(
-            data=request.historical_data,
-            current_balance=request.current_balance
-        )
+        if USE_MOCK_AI:
+            # Simular análisis de flujo de caja
+            analysis = {
+                "summary": "Análisis simulado de flujo de caja",
+                "health_score": 75,
+                "trends": ["Flujo positivo últimos 3 meses", "Estacionalidad detectada"],
+                "risks": ["Concentración en pocos clientes"],
+                "recommendations": ["Diversificar base de clientes", "Mejorar términos de cobro"]
+            }
+            projections = [
+                {"month": 1, "projected_cash_flow": request.current_balance + 5000},
+                {"month": 2, "projected_cash_flow": request.current_balance + 8000},
+                {"month": 3, "projected_cash_flow": request.current_balance + 12000}
+            ]
+            kpis = {
+                "avg_collection_days": 45,
+                "cash_runway_months": 8,
+                "operating_cash_flow_margin": 0.15
+            }
+        else:
+            # Usar IA real
+            projections = await cash_flow_advisor_service.generate_cash_flow_forecast(
+                historical_data=request.historical_data,
+                assumptions={"starting_balance": request.current_balance},
+                forecast_months=6
+            )
+            
+            analysis = await cash_flow_advisor_service.analyze_cash_flow_health(
+                historical_data=request.historical_data,
+                current_balance=request.current_balance,
+                projections=projections,
+                business_context=request.business_context
+            )
+            
+            kpis = cash_flow_advisor_service.calculate_cash_flow_kpis(
+                data=request.historical_data,
+                current_balance=request.current_balance
+            )
         
         return {
             "analysis": analysis,
@@ -178,10 +237,31 @@ async def analyze_cash_flow(request: CashFlowAnalysisRequest):
 async def scenario_analysis(request: ScenarioAnalysisRequest):
     """Análisis de escenarios financieros"""
     try:
-        scenario_results = await financial_advisor_service.generate_scenario_analysis(
-            base_metrics=request.base_metrics,
-            scenarios=request.scenarios
-        )
+        if USE_MOCK_AI:
+            # Simular análisis de escenarios
+            scenario_results = {
+                "optimistic": {
+                    "profit_change_percentage": 25,
+                    "cash_flow_change": 15000,
+                    "summary": "Escenario optimista con crecimiento del 25%"
+                },
+                "realistic": {
+                    "profit_change_percentage": 10,
+                    "cash_flow_change": 8000,
+                    "summary": "Escenario realista con crecimiento moderado"
+                },
+                "pessimistic": {
+                    "profit_change_percentage": -5,
+                    "cash_flow_change": -2000,
+                    "summary": "Escenario pesimista con desafíos de mercado"
+                }
+            }
+        else:
+            # Usar IA real
+            scenario_results = await financial_advisor_service.generate_scenario_analysis(
+                base_metrics=request.base_metrics,
+                scenarios=request.scenarios
+            )
         
         return {
             "scenario_results": scenario_results,

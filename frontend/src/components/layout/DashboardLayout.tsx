@@ -514,14 +514,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </main>
       </div>
 
-      {/* AI Assistant Modal */}
+      {/* Premium AI Assistant Modal */}
       {showAIModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-surface border border-border rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold text-text-primary">Consultor Financiero IA</h3>
+          <div className="bg-surface border border-primary/30 rounded-xl max-w-lg w-full max-h-[80vh] overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-primary/10 to-purple-500/10">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-500 rounded-lg flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-text-primary">Consultor Financiero IA Premium</h3>
+                  <p className="text-xs text-text-secondary">Powered by OpenAI + "Finanzas para Emprendedores"</p>
+                </div>
               </div>
               <button 
                 onClick={() => {
@@ -537,10 +542,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             
             <div className="p-4 max-h-96 overflow-y-auto">
               <div className="space-y-4">
-                <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+                <div className="bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-6 h-6 bg-gradient-to-br from-primary to-purple-500 rounded-md flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="font-semibold text-primary">💡 Asistente IA Premium</span>
+                  </div>
                   <p className="text-sm text-text-secondary">
-                    <strong className="text-primary">💡 Asistente basado en "Finanzas para Emprendedores"</strong><br/>
-                    Haz una pregunta sobre tu negocio y obtén recomendaciones basadas en el libro.
+                    Basado en "Finanzas para Emprendedores" - Obtén recomendaciones personalizadas con citas del libro y análisis avanzado.
                   </p>
                 </div>
 
@@ -559,9 +569,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <button 
                     onClick={handleAIQuestion}
                     disabled={isLoadingAI || !aiQuestion.trim()}
-                    className="w-full btn-primary disabled:opacity-50"
+                    className="w-full bg-gradient-to-r from-primary to-purple-500 hover:from-primary-dark hover:to-purple-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
-                    {isLoadingAI ? 'Analizando...' : 'Obtener Recomendación'}
+                    {isLoadingAI ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Analizando con IA...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        <span>Obtener Recomendación Premium</span>
+                      </>
+                    )}
                   </button>
                 </div>
 
