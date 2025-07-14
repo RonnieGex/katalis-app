@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug InteractiveDemo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0f0f0f;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        .error { color: #ff6b6b; }
+        .success { color: #51cf66; }
+        .warning { color: #ffd43b; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug: Interactive Demo Component</h1>
+    
+    <div class="debug-section">
+        <h2>1. ¿Se está cargando la página?</h2>
+        <p class="success">✅ Si ves esto, la página base está funcionando</p>
+        <p>Timestamp: <span id="timestamp"></span></p>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. ¿Está funcionando JavaScript?</h2>
+        <div id="js-test">❌ JavaScript no está funcionando</div>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. Test de Intersection Observer</h2>
+        <div id="observer-test">🔄 Probando Intersection Observer...</div>
+        <div id="target" style="height: 100px; background: #333; margin: 1000px 0;">
+            Elemento de prueba - scroll hacia aquí
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. Información del navegador</h2>
+        <div id="browser-info"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>5. Errores de consola</h2>
+        <div id="console-errors">No hay errores capturados aún...</div>
+    </div>
+
+    <script>
+        // Test básico de JavaScript
+        document.getElementById('js-test').innerHTML = '✅ JavaScript está funcionando';
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+
+        // Información del navegador
+        const browserInfo = `
+            User Agent: ${navigator.userAgent}<br>
+            Viewport: ${window.innerWidth}x${window.innerHeight}<br>
+            Location: ${window.location.href}<br>
+            Protocol: ${window.location.protocol}
+        `;
+        document.getElementById('browser-info').innerHTML = browserInfo;
+
+        // Test de Intersection Observer
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        document.getElementById('observer-test').innerHTML = '✅ Intersection Observer funcionando - elemento visible!';
+                        document.getElementById('observer-test').className = 'success';
+                    } else {
+                        document.getElementById('observer-test').innerHTML = '👁️ Intersection Observer funcionando - elemento no visible';
+                        document.getElementById('observer-test').className = 'warning';
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '50px'
+            });
+
+            observer.observe(document.getElementById('target'));
+        } else {
+            document.getElementById('observer-test').innerHTML = '❌ Intersection Observer NO soportado';
+            document.getElementById('observer-test').className = 'error';
+        }
+
+        // Capturar errores de consola
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        let errors = [];
+
+        console.error = function(...args) {
+            errors.push(`ERROR: ${args.join(' ')}`);
+            updateErrorDisplay();
+            originalError.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            errors.push(`WARNING: ${args.join(' ')}`);
+            updateErrorDisplay();
+            originalWarn.apply(console, args);
+        };
+
+        function updateErrorDisplay() {
+            const errorDiv = document.getElementById('console-errors');
+            if (errors.length > 0) {
+                errorDiv.innerHTML = errors.map(err => `<div class="error">${err}</div>`).join('');
+            } else {
+                errorDiv.innerHTML = '✅ No hay errores de consola';
+                errorDiv.className = 'success';
+            }
+        }
+
+        // Test inicial
+        setTimeout(updateErrorDisplay, 1000);
+
+        // Test de carga de módulos ES6
+        setTimeout(async () => {
+            try {
+                const testModule = await import('/src/components/animations/InteractiveDemo.tsx');
+                document.getElementById('console-errors').innerHTML += '<div class="success">✅ Módulo InteractiveDemo se puede importar</div>';
+            } catch (error) {
+                document.getElementById('console-errors').innerHTML += `<div class="error">❌ Error importando InteractiveDemo: ${error.message}</div>`;
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

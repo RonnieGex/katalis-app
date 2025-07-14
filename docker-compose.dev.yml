@@ -1,0 +1,20 @@
+# Docker Compose for development
+services:
+  # Backend service (development)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - SECRET_KEY=development-secret-key
+    volumes:
+      - ./backend:/app
+    networks:
+      - katalis-network
+
+networks:
+  katalis-network:
+    driver: bridge

@@ -1,0 +1,162 @@
+# Production Docker Compose file for KatalisApp
+version: '3.8'
+
+services:
+  # Frontend service (production build)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=${API_URL:-https://api.katalisapp.com}
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`katalisapp.com`,`www.katalisapp.com`)"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+    networks:
+      - katalis-network
+
+  # Backend service (production)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://katalisapp.com,https://www.katalisapp.com}
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.katalisapp.com`)"
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - katalis-network
+
+  # Production database (if not using Supabase)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   environment:
+  #     - POSTGRES_USER=${DB_USER}
+  #     - POSTGRES_PASSWORD=${DB_PASSWORD}
+  #     - POSTGRES_DB=${DB_NAME}
+  #   volumes:
+  #     - postgres_prod_data:/var/lib/postgresql/data
+  #     - ./backup:/backup
+  #   restart: unless-stopped
+  #   networks:
+  #     - katalis-network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - katalis-network
+
+  # Reverse proxy and SSL termination
+  traefik:
+    image: traefik:v3.0
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--global.sendAnonymousUsage=false"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt_data:/letsencrypt
+    restart: unless-stopped
+    networks:
+      - katalis-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.katalisapp.com`)"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.service=api@internal"
+
+  # Monitoring (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+    networks:
+      - katalis-network
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - katalis-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`monitoring.katalisapp.com`)"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
+
+networks:
+  katalis-network:
+    driver: bridge
+
+volumes:
+  # postgres_prod_data:
+  redis_data:
+  letsencrypt_data:
+  prometheus_data:
+  grafana_data:

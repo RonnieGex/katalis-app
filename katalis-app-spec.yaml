@@ -1,0 +1,82 @@
+spec:
+  name: katalis-app
+  region: nyc
+  services:
+    - name: backend
+      source_dir: /backend
+      dockerfile_path: /backend/Dockerfile
+      build_command: docker build -t katalis-backend:production . --target production
+      envs:
+        - key: ENVIRONMENT
+          value: production
+          scope: RUN_AND_BUILD_TIME
+        - key: SECRET_KEY
+          value: katalis-production-secret-key-2024
+          scope: RUN_TIME
+        - key: JWT_SECRET_KEY
+          value: katalis-jwt-production-secret-2024
+          scope: RUN_TIME
+        - key: OPENAI_API_KEY
+          value: YOUR_OPENAI_API_KEY_HERE
+          scope: RUN_TIME
+        - key: SUPABASE_URL
+          value: https://zwrcdbbijugpewjecyhlc.supabase.co
+          scope: RUN_TIME
+        - key: SUPABASE_ANON_KEY
+          value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cmNkYmJqdWdwZXdqZWN5aGxjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3MDg1NzEsImV4cCI6MjA2NjI4NDU3MX0.ItnhY3KaFyzAGpx9QWcmJxMLBxXHqmCGZNppDErMQws
+          scope: RUN_TIME
+        - key: SUPABASE_SERVICE_KEY
+          value: placeholder-service-key
+          scope: RUN_TIME
+        - key: REDIS_URL
+          value: redis://default:AXi-AAIjcDFiOGZlNjNhNTcwYTk0YzQwOTUxNWY4MWJhNzJlNTU3ZHAxMA@viable-mackerel-30910.upstash.io:6379
+          scope: RUN_TIME
+        - key: REDIS_REST_URL
+          value: https://viable-mackerel-30910.upstash.io
+          scope: RUN_TIME
+        - key: REDIS_REST_TOKEN
+          value: AXi-AAIjcDFiOGZlNjNhNTcwYTk0YzQwOTUxNWY4MWJhNzJlNTU3ZHAxMA
+          scope: RUN_TIME
+      instance_size_slug: apps-s-1vcpu-1gb
+      instance_count: 1
+      http_port: 8000
+      health_check:
+        initial_delay_seconds: 60
+        period_seconds: 10
+        timeout_seconds: 5
+        success_threshold: 1
+        failure_threshold: 3
+        http_path: /health
+    - name: frontend
+      source_dir: /frontend
+      dockerfile_path: /frontend/Dockerfile
+      build_command: docker build -t katalis-frontend:production . --target development
+      envs:
+        - key: VITE_API_URL
+          value: https://katalis-app.ondigitalocean.app
+          scope: BUILD_TIME
+      instance_size_slug: apps-s-1vcpu-0.5gb
+      instance_count: 1
+      http_port: 5173
+      health_check:
+        initial_delay_seconds: 30
+        period_seconds: 10
+        timeout_seconds: 5
+        success_threshold: 1
+        failure_threshold: 3
+        http_path: /
+  alerts:
+    - rule: DEPLOYMENT_FAILED
+    - rule: DOMAIN_FAILED
+  ingress:
+    rules:
+      - match:
+          path:
+            prefix: /api
+        component:
+          name: backend
+      - match:
+          path:
+            prefix: /
+        component:
+          name: frontend

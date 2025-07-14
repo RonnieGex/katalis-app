@@ -1,0 +1,413 @@
+/* 🌟 KatalisApp - Enhanced Global Styles */
+
+/* Import design system first */
+@import './design-system.css';
+
+/* 🔤 Enhanced Typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* 🎯 Enhanced Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* 🎨 Enhanced Selection Styles */
+::selection {
+  background: var(--primary-green);
+  color: white;
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: var(--primary-green);
+  color: white;
+  text-shadow: none;
+}
+
+/* 🎯 Enhanced Focus Styles */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-green);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* 📱 Enhanced Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+  border-radius: var(--border-radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: var(--border-radius-full);
+  transition: var(--transition-normal);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-green);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--bg-surface);
+}
+
+/* 🔗 Enhanced Link Styles */
+a {
+  color: var(--primary-green);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-green-light);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--primary-green);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* 📝 Enhanced Form Elements */
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition-normal);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  border: none;
+  outline: none;
+  background: transparent;
+  transition: var(--transition-normal);
+}
+
+/* 🖼️ Enhanced Image Handling */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+img[loading="lazy"].loaded {
+  opacity: 1;
+}
+
+/* 📱 Enhanced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 🌙 Dark Mode Optimizations */
+@media (prefers-color-scheme: dark) {
+  body {
+    color-scheme: dark;
+  }
+}
+
+/* 📱 High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+}
+
+/* 🎭 Enhanced Print Styles */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* 🔥 Performance Optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-scroll {
+  will-change: scroll-position;
+}
+
+/* Reset will-change after animation */
+.animation-reset {
+  will-change: auto;
+}
+
+/* 🎨 Enhanced Utility Classes */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+  z-index: var(--z-tooltip);
+  transition: var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* 🌟 Loading States */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 🎯 Enhanced Error States */
+.error {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.success {
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.warning {
+  color: var(--warning);
+  border-color: var(--warning);
+}
+
+.info {
+  color: var(--info);
+  border-color: var(--info);
+}
+
+/* 🔥 Layout Utilities */
+.full-bleed {
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 
+    [full-start] minmax(var(--spacing-md), 1fr)
+    [content-start] min(1280px, 100% - var(--spacing-xl))
+    [content-end] minmax(var(--spacing-md), 1fr)
+    [full-end];
+}
+
+.content-grid > * {
+  grid-column: content;
+}
+
+.content-grid > .full-bleed {
+  grid-column: full;
+}
+
+/* 🌟 Enhanced Typography Scales */
+.text-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* 🎭 Enhanced Animation Classes */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.fade-in-down {
+  opacity: 0;
+  transform: translateY(-30px);
+  animation: fadeInDown 0.8s ease-out forwards;
+}
+
+.slide-in-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.slide-in-right {
+  opacity: 0;
+  transform: translateX(30px);
+  animation: slideInRight 0.6s ease-out forwards;
+}
+
+.scale-in {
+  opacity: 0;
+  transform: scale(0.9);
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+/* 🔄 Loading Animations */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface) 25%,
+    var(--bg-surface-light) 50%,
+    var(--bg-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* 🎨 Enhanced Dark Mode Support */
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* 🔥 Performance Critical Styles */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 🎯 Focus Management */
+.focus-trap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-modal);
+  pointer-events: none;
+}
+
+.focus-trap.active {
+  pointer-events: auto;
+}

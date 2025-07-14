@@ -1,0 +1,60 @@
+name: katalis-app
+region: nyc
+
+services:
+- name: backend
+  source_dir: /backend
+  dockerfile_path: /backend/Dockerfile
+  http_port: 8000
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-1gb
+  health_check:
+    http_path: /health
+  routes:
+  - path: /api
+    preserve_path_prefix: true
+  envs:
+  - key: ENVIRONMENT
+    value: production
+    type: GENERAL
+  - key: SECRET_KEY
+    value: katalis-production-secret-key-2024
+    type: SECRET
+  - key: JWT_SECRET_KEY
+    value: katalis-jwt-production-secret-2024
+    type: SECRET
+  - key: OPENAI_API_KEY
+    value: YOUR_OPENAI_API_KEY_HERE
+    type: SECRET
+  - key: SUPABASE_URL
+    value: https://zwrcdbbijugpewjecyhlc.supabase.co
+    type: GENERAL
+  - key: SUPABASE_ANON_KEY
+    value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cmNkYmJqdWdwZXdqZWN5aGxjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3MDg1NzEsImV4cCI6MjA2NjI4NDU3MX0.ItnhY3KaFyzAGpx9QWcmJxMLBxXHqmCGZNppDErMQws
+    type: GENERAL
+  - key: REDIS_URL
+    value: redis://default:AXi-AAIjcDFiOGZlNjNhNTcwYTk0YzQwOTUxNWY4MWJhNzJlNTU3ZHAxMA@viable-mackerel-30910.upstash.io:6379
+    type: SECRET
+  - key: REDIS_REST_URL
+    value: https://viable-mackerel-30910.upstash.io
+    type: GENERAL
+  - key: REDIS_REST_TOKEN
+    value: AXi-AAIjcDFiOGZlNjNhNTcwYTk0YzQwOTUxNWY4MWJhNzJlNTU3ZHAxMA
+    type: SECRET
+
+- name: frontend
+  source_dir: /frontend
+  dockerfile_path: /frontend/Dockerfile
+  http_port: 80
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  health_check:
+    http_path: /
+  routes:
+  - path: /
+    preserve_path_prefix: false
+  envs:
+  - key: VITE_API_URL
+    value: ${backend.PUBLIC_URL}
+    type: GENERAL
+    scope: BUILD_TIME

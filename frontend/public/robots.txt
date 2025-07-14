@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /styles.css
+Allow: /app.js
+
+# Block API endpoints from indexing
+Disallow: /api/
+
+# Allow specific pages
+Allow: /features
+Allow: /about
+Allow: /contact
+
+Sitemap: https://katalisapp.com/sitemap.xml

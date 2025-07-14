@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KatalisApp - Finanzas para Emprendedores</title>
+    <meta name="description" content="KatalisApp es una plataforma SaaS que ayuda a emprendedores a dominar las finanzas empresariales basada en el libro Finanzas para Emprendedores.">
+    <meta name="keywords" content="finanzas, emprendedores, SaaS, flujo de caja, unidades económicas, planificación financiera">
+    <meta name="author" content="KatalisApp">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://katalisapp.com/">
+    <meta property="og:title" content="KatalisApp - Finanzas para Emprendedores">
+    <meta property="og:description" content="Domina las finanzas de tu empresa con nuestra plataforma basada en Finanzas para Emprendedores">
+    <meta property="og:image" content="https://katalisapp.com/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://katalisapp.com/">
+    <meta property="twitter:title" content="KatalisApp - Finanzas para Emprendedores">
+    <meta property="twitter:description" content="Domina las finanzas de tu empresa con nuestra plataforma basada en Finanzas para Emprendedores">
+    <meta property="twitter:image" content="https://katalisapp.com/og-image.jpg">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "KatalisApp",
+      "description": "Plataforma SaaS para finanzas empresariales dirigida a emprendedores",
+      "url": "https://katalisapp.com",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "category": "SaaS"
+      }
+    }
+    </script>
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="canonical" href="https://katalisapp.com/">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <h1>KatalisApp</h1>
+                    </div>
+                    <nav class="nav">
+                        <button id="admin-login-btn" class="btn btn-outline">Admin</button>
+                        <button id="user-login-btn" class="btn btn-primary">Acceso</button>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="container">
+                    <div class="hero-content">
+                        <h2>Domina las Finanzas de tu Empresa</h2>
+                        <p>Aprende y aplica los conceptos del libro "Finanzas para Emprendedores" con nuestra plataforma inteligente que combina educación y análisis financiero.</p>
+                        <div class="hero-features">
+                            <div class="feature">
+                                <h3>📊 Análisis de Flujo de Caja</h3>
+                                <p>Gestiona y proyecta el flujo de efectivo de tu empresa</p>
+                            </div>
+                            <div class="feature">
+                                <h3>💰 Unidades Económicas</h3>
+                                <p>Calcula la rentabilidad por unidad de tu negocio</p>
+                            </div>
+                            <div class="feature">
+                                <h3>🤖 Asistente IA</h3>
+                                <p>Obtén insights personalizados sobre tus finanzas</p>
+                            </div>
+                        </div>
+                        <button id="get-started-btn" class="btn btn-primary btn-large">Comenzar Ahora</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="features" id="features">
+                <div class="container">
+                    <h2>Características Principales</h2>
+                    <div class="features-grid">
+                        <article class="feature-card">
+                            <h3>Educación Financiera</h3>
+                            <p>Contenido basado en "Finanzas para Emprendedores" con ejemplos prácticos y ejercicios interactivos.</p>
+                        </article>
+                        <article class="feature-card">
+                            <h3>Herramientas de Análisis</h3>
+                            <p>Calculadoras y dashboards para analizar costos, precios, rentabilidad y planificación financiera.</p>
+                        </article>
+                        <article class="feature-card">
+                            <h3>Asistente IA</h3>
+                            <p>Chat inteligente que responde preguntas sobre finanzas empresariales y analiza tus datos.</p>
+                        </article>
+                        <article class="feature-card">
+                            <h3>Seguimiento de Progreso</h3>
+                            <p>Monitorea tu aprendizaje y mejora continua en el dominio de las finanzas empresariales.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2024 KatalisApp. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+
+        <!-- Login Modals -->
+        <div id="admin-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Acceso de Administrador</h3>
+                <form id="admin-form">
+                    <div class="form-group">
+                        <label for="admin-username">Usuario:</label>
+                        <input type="text" id="admin-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password">Contraseña:</label>
+                        <input type="password" id="admin-password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-totp">Código 2FA (opcional):</label>
+                        <input type="text" id="admin-totp" name="totp_code" placeholder="123456">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="user-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Acceso de Usuario</h3>
+                <form id="user-form">
+                    <div class="form-group">
+                        <label for="access-code">Código de Acceso:</label>
+                        <input type="text" id="access-code" name="access_code" placeholder="Ingresa tu código" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Acceder</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard (hidden initially) -->
+        <div id="dashboard" style="display: none;">
+            <div class="container">
+                <h2 id="dashboard-title">Panel de Control</h2>
+                <div id="dashboard-content"></div>
+                <button id="logout-btn" class="btn btn-outline">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
