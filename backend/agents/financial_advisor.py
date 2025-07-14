@@ -10,6 +10,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import json
+import os
+from services.dual_ai_service import dual_ai_service, TaskComplexity
 
 # Modelos de datos financieros
 class FinancialMetrics(BaseModel):
@@ -59,9 +61,21 @@ class BusinessAnalysis(BaseModel):
     growth_opportunities: List[str] = Field(description="Oportunidades de crecimiento")
     financial_recommendations: List[FinancialRecommendation] = Field(description="Recomendaciones específicas")
 
+# Configuración dinámica del modelo según disponibilidad
+def get_ai_model_config():
+    """Determina qué modelo usar según APIs disponibles"""
+    status = dual_ai_service.get_service_status()
+    
+    if status['deepseek_available']:
+        return 'deepseek:deepseek-reasoner'  # DeepSeek R1 para análisis complejo
+    elif status['openai_available']:
+        return 'openai:gpt-4o-mini'  # Fallback a OpenAI
+    else:
+        return 'mock:financial-advisor'  # Mock para desarrollo
+
 # Agente especializado en análisis financiero
 financial_advisor_agent = Agent(
-    'openai:gpt-4o-mini',
+    get_ai_model_config(),
     result_type=BusinessAnalysis,
     system_prompt="""
     Eres un consultor financiero experto especializado en PyMEs y emprendimientos, 
@@ -111,7 +125,7 @@ financial_advisor_agent = Agent(
 
 # Agente especializado en recomendaciones de precios
 pricing_optimizer_agent = Agent(
-    'openai:gpt-4o-mini',
+    get_ai_model_config(),
     result_type=List[FinancialRecommendation],
     system_prompt="""
     Eres un especialista en estrategias de precios para PyMEs, basado en los conceptos 
@@ -146,7 +160,7 @@ pricing_optimizer_agent = Agent(
 
 # Agente especializado en análisis de crecimiento
 growth_analyzer_agent = Agent(
-    'openai:gpt-4o-mini',
+    get_ai_model_config(),
     result_type=List[FinancialRecommendation],
     system_prompt="""
     Eres un analista de crecimiento empresarial especializado en PyMEs y startups,

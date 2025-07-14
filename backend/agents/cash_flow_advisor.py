@@ -9,6 +9,8 @@ from pydantic_ai import Agent
 import pandas as pd
 from datetime import datetime, timedelta
 import json
+import os
+from services.dual_ai_service import dual_ai_service
 
 class CashFlowEntry(BaseModel):
     """Entrada individual de flujo de caja"""
@@ -59,9 +61,21 @@ class CashFlowAnalysis(BaseModel):
     alerts: List[CashFlowAlert]
     recommendations: List[CashFlowRecommendation]
 
+# Configuración dinámica del modelo
+def get_cash_flow_ai_model():
+    """Modelo para análisis de flujo de caja (tarea compleja)"""
+    status = dual_ai_service.get_service_status()
+    
+    if status['deepseek_available']:
+        return 'deepseek:deepseek-reasoner'  # DeepSeek R1 para análisis complejo
+    elif status['openai_available']:
+        return 'openai:gpt-4o-mini'
+    else:
+        return 'mock:cash-flow-analyzer'
+
 # Agente especializado en análisis de flujo de caja
 cash_flow_analyzer = Agent(
-    'openai:gpt-4o-mini',
+    get_cash_flow_ai_model(),
     result_type=CashFlowAnalysis,
     system_prompt="""
     Eres un especialista en gestión de flujo de caja para PyMEs y emprendimientos,
@@ -110,7 +124,7 @@ cash_flow_analyzer = Agent(
 
 # Agente para optimización de cobros
 collections_optimizer = Agent(
-    'openai:gpt-4o-mini',
+    get_cash_flow_ai_model(),
     result_type=List[CashFlowRecommendation],
     system_prompt="""
     Eres un especialista en optimización de cobros y gestión de cuentas por cobrar.

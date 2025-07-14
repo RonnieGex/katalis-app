@@ -9,17 +9,20 @@ import json
 from datetime import datetime
 
 import os
+from services.dual_ai_service import dual_ai_service
 
-# Detectar si tenemos OpenAI API key
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-USE_MOCK_AI = not OPENAI_API_KEY or OPENAI_API_KEY.startswith("your_openai_api_key_here")
+# Detectar qué servicios de IA están disponibles
+ai_status = dual_ai_service.get_service_status()
+USE_MOCK_AI = not ai_status['openai_available'] and not ai_status['deepseek_available']
 
 if USE_MOCK_AI:
-    print("⚠️ Usando Mock AI Service - Configura OPENAI_API_KEY para IA real")
+    print("⚠️ Usando Mock AI Service - Configura OPENAI_API_KEY y DEEPSEEK_API_KEY para IA real")
     from agents.mock_ai_service import mock_financial_advisor
     from agents.financial_advisor import FinancialMetrics, UnitEconomics, BusinessContext
 else:
-    print("✅ Usando IA Real - OpenAI API Key configurada")
+    print(f"✅ Usando IA Real - Estrategia: {ai_status['strategy']}")
+    print(f"   💡 Tareas simples: {ai_status['models']['simple_tasks']}")
+    print(f"   🧠 Razonamiento complejo: {ai_status['models']['complex_reasoning']}")
     from agents.financial_advisor import (
         FinancialAdvisorService, 
         FinancialMetrics, 
@@ -421,6 +424,101 @@ async def get_quick_recommendations(request: BusinessAnalysisRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando recomendaciones: {str(e)}")
 
+@router.post("/test-dual-ai")
+async def test_dual_ai(request: Dict):
+    """Endpoint para probar la estrategia dual de IA"""
+    try:
+        question = request.get("question", "¿Cómo puedo mejorar la rentabilidad de mi negocio?")
+        force_provider = request.get("provider")  # "openai", "deepseek", o None para auto
+        
+        # Determinar tipo de tarea
+        task_type = "complex_analysis" if any(word in question.lower() for word in 
+                   ["analizar", "estrategia", "optimizar", "proyección"]) else "simple_query"
+        
+        # Generar respuesta usando servicio dual
+        ai_response = await dual_ai_service.generate_response(
+            prompt=question,
+            task_type=task_type,
+            context={"industry": "general", "business_stage": "growth"},
+            force_provider=force_provider
+        )
+        
+        return {
+            "question": question,
+            "response": ai_response.content,
+            "model_used": ai_response.model_used,
+            "provider": ai_response.provider,
+            "reasoning_steps": ai_response.reasoning_steps,
+            "confidence": ai_response.confidence,
+            "task_complexity": task_type,
+            "timestamp": datetime.now().isoformat(),
+            "ai_status": dual_ai_service.get_service_status()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en test dual AI: {str(e)}")
+
+@router.post("/reasoning-analysis")
+async def complex_reasoning_analysis(request: BusinessAnalysisRequest):
+    """Análisis complejo usando DeepSeek R1 para razonamiento profundo"""
+    try:
+        # Este endpoint está diseñado para usar DeepSeek R1 específicamente
+        analysis_prompt = f"""
+        Realiza un análisis financiero profundo y estrategia de optimización para este negocio:
+        
+        MÉTRICAS FINANCIERAS:
+        - Ingresos: ${request.financial_metrics.revenue:,.2f}
+        - Gastos: ${request.financial_metrics.expenses:,.2f}
+        - Utilidad neta: ${request.financial_metrics.net_profit:,.2f}
+        - Flujo de caja: ${request.financial_metrics.cash_flow:,.2f}
+        - LTV: ${request.financial_metrics.ltv:,.2f}
+        - COCA: ${request.financial_metrics.coca:,.2f}
+        
+        UNIT ECONOMICS:
+        - Precio por unidad: ${request.unit_economics.price_per_unit:,.2f}
+        - Costo variable unitario: ${request.unit_economics.variable_cost_per_unit:,.2f}
+        - Gasto en marketing: ${request.unit_economics.marketing_spend:,.2f}
+        - Nuevos clientes: {request.unit_economics.new_customers}
+        
+        CONTEXTO DEL NEGOCIO:
+        - Industria: {request.business_context.industry}
+        - Etapa: {request.business_context.business_stage}
+        - Empleados: {request.business_context.employee_count}
+        - Meses operando: {request.business_context.months_operating}
+        
+        Proporciona:
+        1. Análisis detallado de la situación actual
+        2. Identificación de problemas críticos y oportunidades
+        3. Estrategia de optimización paso a paso
+        4. Proyecciones financieras realistas
+        5. Plan de acción con prioridades y tiempos
+        """
+        
+        # Forzar uso de DeepSeek para razonamiento complejo
+        ai_response = await dual_ai_service.generate_response(
+            prompt=analysis_prompt,
+            task_type="complex_reasoning_analysis",
+            context={
+                "business_context": request.business_context.dict(),
+                "analysis_type": "comprehensive_business_analysis"
+            },
+            force_provider="deepseek"  # Forzar DeepSeek R1
+        )
+        
+        return {
+            "analysis": ai_response.content,
+            "reasoning_steps": ai_response.reasoning_steps,
+            "model_used": ai_response.model_used,
+            "provider": ai_response.provider,
+            "confidence": ai_response.confidence,
+            "analysis_type": "deep_reasoning",
+            "timestamp": datetime.now().isoformat(),
+            "recommendation": "Este análisis usa DeepSeek R1 para razonamiento profundo y estrategias complejas"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en análisis de razonamiento: {str(e)}")
+
 # Endpoints de utilidad
 @router.get("/benchmarks/{industry}")
 async def get_industry_benchmarks(industry: str):
@@ -473,9 +571,23 @@ async def get_industry_benchmarks(industry: str):
         "last_updated": datetime.now().isoformat()
     }
 
+@router.get("/ai-status")
+async def get_ai_status():
+    """Estado actual de los servicios de IA"""
+    status = dual_ai_service.get_service_status()
+    return {
+        "ai_services": status,
+        "current_strategy": "dual" if status['deepseek_available'] and status['openai_available'] else "single",
+        "available_models": {
+            "reasoning": "DeepSeek R1" if status['deepseek_available'] else "GPT-4o-mini" if status['openai_available'] else "Mock",
+            "simple_tasks": "GPT-4o-mini" if status['openai_available'] else "Mock"
+        },
+        "recommendation": "Configure both APIs for optimal performance" if not (status['deepseek_available'] and status['openai_available']) else "All AI services active"
+    }
+
 @router.get("/kpis/definitions")
 async def get_kpi_definitions():
-    """Definiciones y explicaciones de KPIs financieros"""
+    """Definiciones y explicaciones de KPIs financieros (tarea simple - usa OpenAI)"""
     
     kpi_definitions = {
         "ltv": {
@@ -522,8 +634,24 @@ async def get_kpi_definitions():
         }
     }
     
-    return {
+    response_data = {
         "kpi_definitions": kpi_definitions,
         "total_kpis": len(kpi_definitions),
         "categories": ["profitability", "efficiency", "growth", "sustainability"]
     }
+    
+    # Si tenemos IA disponible, agregar explicaciones generadas
+    if not USE_MOCK_AI:
+        try:
+            # Usar OpenAI para tarea simple de definiciones
+            ai_response = await dual_ai_service.generate_response(
+                "Proporciona un resumen ejecutivo de por qué estos KPIs son importantes para emprendedores",
+                task_type="kpi_definitions",
+                force_provider="openai"  # Forzar OpenAI para tarea simple
+            )
+            response_data["ai_summary"] = ai_response.content
+            response_data["generated_by"] = ai_response.model_used
+        except Exception as e:
+            print(f"Error generating AI summary: {e}")
+    
+    return response_data
