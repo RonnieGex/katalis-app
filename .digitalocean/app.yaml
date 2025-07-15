@@ -4,21 +4,18 @@ domains:
 - domain: katalisapp.com
   type: PRIMARY
   zone: katalisapp.com
-  certificate_id: ""
 - domain: www.katalisapp.com
   type: ALIAS
   zone: katalisapp.com
-  certificate_id: ""
 - domain: api.katalisapp.com
   type: ALIAS
   zone: katalisapp.com
-  certificate_id: ""
 
 services:
 - name: frontend
   source_dir: /frontend
   github:
-    repo: ${GITHUB_REPO}
+    repo: RonnieGex/katalis-app
     branch: main
     deploy_on_push: true
   build_command: npm install && npm run build
@@ -46,7 +43,7 @@ services:
 - name: backend
   source_dir: /backend
   github:
-    repo: ${GITHUB_REPO}
+    repo: RonnieGex/katalis-app
     branch: main
     deploy_on_push: true
   build_command: pip install -r requirements.txt
@@ -57,9 +54,17 @@ services:
   http_port: 8000
   routes:
   - path: /api
+    preserve_path_prefix: false
   - path: /docs
+    preserve_path_prefix: false
   - path: /health
+    preserve_path_prefix: false
   - path: /v1
+    preserve_path_prefix: false
+  - path: /redoc
+    preserve_path_prefix: false
+  - path: /openapi.json
+    preserve_path_prefix: false
   health_check:
     http_path: /health
     initial_delay_seconds: 45
@@ -105,20 +110,14 @@ services:
     value: ${SUPABASE_SERVICE_KEY}
     type: SECRET
 
-databases:
-- name: redis
-  engine: REDIS
-  version: "7"
-  size: db-s-1vcpu-1gb
-  num_nodes: 1
-  production: true
+# Using external Redis (Upstash) - no internal database needed
 
 # Optional: Enable when background processing is needed
 # workers:
 # - name: ai-processor
 #   source_dir: /backend
 #   github:
-#     repo: ${GITHUB_REPO}
+#     repo: RonnieGex/katalis-app
 #     branch: main
 #     deploy_on_push: true
 #   build_command: pip install -r requirements.txt
