@@ -1,0 +1,128 @@
+name: katalis-app
+region: nyc
+domains:
+- domain: katalis-app.com
+  type: PRIMARY
+  zone: katalis-app.com
+  certificate_id: ""
+
+services:
+- name: frontend
+  source_dir: /frontend
+  github:
+    repo: tu-usuario/katalis-app
+    branch: main
+    deploy_on_push: true
+  build_command: npm run build
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 3000
+  routes:
+  - path: /
+  health_check:
+    http_path: /
+    initial_delay_seconds: 10
+    period_seconds: 10
+    timeout_seconds: 5
+    success_threshold: 1
+    failure_threshold: 3
+  envs:
+  - key: VITE_API_URL
+    value: https://katalis-app-backend.ondigitalocean.app
+    type: GENERAL
+  - key: NODE_ENV
+    value: production
+    type: GENERAL
+
+- name: backend
+  source_dir: /backend
+  github:
+    repo: tu-usuario/katalis-app
+    branch: main
+    deploy_on_push: true
+  build_command: pip install -r requirements.txt
+  run_command: uvicorn main:app --host 0.0.0.0 --port 8000
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8000
+  routes:
+  - path: /api
+  - path: /docs
+  - path: /health
+  health_check:
+    http_path: /health
+    initial_delay_seconds: 30
+    period_seconds: 10
+    timeout_seconds: 5
+    success_threshold: 1
+    failure_threshold: 3
+  envs:
+  - key: ENVIRONMENT
+    value: production
+    type: GENERAL
+  - key: DEBUG
+    value: "false"
+    type: GENERAL
+  - key: SECRET_KEY
+    value: ${SECRET_KEY}
+    type: SECRET
+  - key: JWT_SECRET_KEY
+    value: ${JWT_SECRET_KEY}
+    type: SECRET
+  - key: OPENAI_API_KEY
+    value: ${OPENAI_API_KEY}
+    type: SECRET
+  - key: CORS_ORIGINS
+    value: https://katalis-app.com,https://www.katalis-app.com
+    type: GENERAL
+  - key: REDIS_URL
+    value: ${REDIS_URL}
+    type: SECRET
+  - key: REDIS_REST_URL
+    value: ${REDIS_REST_URL}
+    type: SECRET
+  - key: REDIS_REST_TOKEN
+    value: ${REDIS_REST_TOKEN}
+    type: SECRET
+  - key: SUPABASE_URL
+    value: ${SUPABASE_URL}
+    type: SECRET
+  - key: SUPABASE_ANON_KEY
+    value: ${SUPABASE_ANON_KEY}
+    type: SECRET
+  - key: SUPABASE_SERVICE_KEY
+    value: ${SUPABASE_SERVICE_KEY}
+    type: SECRET
+
+databases:
+- name: postgres
+  engine: PG
+  version: "15"
+  size: db-s-1vcpu-1gb
+  num_nodes: 1
+  production: true
+
+workers:
+- name: ai-processor
+  source_dir: /backend
+  github:
+    repo: tu-usuario/katalis-app
+    branch: main
+    deploy_on_push: true
+  build_command: pip install -r requirements.txt
+  run_command: python -m celery worker -A app.celery --loglevel=info
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  envs:
+  - key: ENVIRONMENT
+    value: production
+    type: GENERAL
+  - key: CELERY_BROKER_URL
+    value: ${REDIS_URL}
+    type: SECRET
+  - key: CELERY_RESULT_BACKEND
+    value: ${REDIS_URL}
+    type: SECRET
