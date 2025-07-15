@@ -1,19 +1,27 @@
 name: katalis-app
 region: nyc
 domains:
-- domain: katalis-app.com
+- domain: katalisapp.com
   type: PRIMARY
-  zone: katalis-app.com
+  zone: katalisapp.com
+  certificate_id: ""
+- domain: www.katalisapp.com
+  type: ALIAS
+  zone: katalisapp.com
+  certificate_id: ""
+- domain: api.katalisapp.com
+  type: ALIAS
+  zone: katalisapp.com
   certificate_id: ""
 
 services:
 - name: frontend
   source_dir: /frontend
   github:
-    repo: tu-usuario/katalis-app
+    repo: ${GITHUB_REPO}
     branch: main
     deploy_on_push: true
-  build_command: npm run build
+  build_command: npm install && npm run build
   environment_slug: node-js
   instance_count: 1
   instance_size_slug: basic-xxs
@@ -22,14 +30,14 @@ services:
   - path: /
   health_check:
     http_path: /
-    initial_delay_seconds: 10
-    period_seconds: 10
-    timeout_seconds: 5
+    initial_delay_seconds: 15
+    period_seconds: 30
+    timeout_seconds: 10
     success_threshold: 1
     failure_threshold: 3
   envs:
   - key: VITE_API_URL
-    value: https://katalis-app-backend.ondigitalocean.app
+    value: https://api.katalisapp.com
     type: GENERAL
   - key: NODE_ENV
     value: production
@@ -38,24 +46,25 @@ services:
 - name: backend
   source_dir: /backend
   github:
-    repo: tu-usuario/katalis-app
+    repo: ${GITHUB_REPO}
     branch: main
     deploy_on_push: true
   build_command: pip install -r requirements.txt
-  run_command: uvicorn main:app --host 0.0.0.0 --port 8000
+  run_command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2
   environment_slug: python
   instance_count: 1
-  instance_size_slug: basic-xxs
+  instance_size_slug: basic-s
   http_port: 8000
   routes:
   - path: /api
   - path: /docs
   - path: /health
+  - path: /v1
   health_check:
     http_path: /health
-    initial_delay_seconds: 30
-    period_seconds: 10
-    timeout_seconds: 5
+    initial_delay_seconds: 45
+    period_seconds: 30
+    timeout_seconds: 10
     success_threshold: 1
     failure_threshold: 3
   envs:
@@ -75,7 +84,7 @@ services:
     value: ${OPENAI_API_KEY}
     type: SECRET
   - key: CORS_ORIGINS
-    value: https://katalis-app.com,https://www.katalis-app.com
+    value: https://katalisapp.com,https://www.katalisapp.com
     type: GENERAL
   - key: REDIS_URL
     value: ${REDIS_URL}
@@ -97,32 +106,33 @@ services:
     type: SECRET
 
 databases:
-- name: postgres
-  engine: PG
-  version: "15"
+- name: redis
+  engine: REDIS
+  version: "7"
   size: db-s-1vcpu-1gb
   num_nodes: 1
   production: true
 
-workers:
-- name: ai-processor
-  source_dir: /backend
-  github:
-    repo: tu-usuario/katalis-app
-    branch: main
-    deploy_on_push: true
-  build_command: pip install -r requirements.txt
-  run_command: python -m celery worker -A app.celery --loglevel=info
-  environment_slug: python
-  instance_count: 1
-  instance_size_slug: basic-xxs
-  envs:
-  - key: ENVIRONMENT
-    value: production
-    type: GENERAL
-  - key: CELERY_BROKER_URL
-    value: ${REDIS_URL}
-    type: SECRET
-  - key: CELERY_RESULT_BACKEND
-    value: ${REDIS_URL}
-    type: SECRET
+# Optional: Enable when background processing is needed
+# workers:
+# - name: ai-processor
+#   source_dir: /backend
+#   github:
+#     repo: ${GITHUB_REPO}
+#     branch: main
+#     deploy_on_push: true
+#   build_command: pip install -r requirements.txt
+#   run_command: python -m celery worker -A app.celery --loglevel=info
+#   environment_slug: python
+#   instance_count: 1
+#   instance_size_slug: basic-xxs
+#   envs:
+#   - key: ENVIRONMENT
+#     value: production
+#     type: GENERAL
+#   - key: CELERY_BROKER_URL
+#     value: ${REDIS_URL}
+#     type: SECRET
+#   - key: CELERY_RESULT_BACKEND
+#     value: ${REDIS_URL}
+#     type: SECRET

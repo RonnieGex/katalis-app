@@ -67,6 +67,8 @@ build_docker_images() {
     log "Construyendo frontend..."
     docker build -t katalis-app-frontend:latest \
         --target production \
+        --build-arg NODE_ENV=production \
+        --build-arg VITE_API_URL=https://api.katalisapp.com \
         ./frontend || error "Error construyendo frontend"
     success "Frontend construido exitosamente"
     
@@ -74,6 +76,7 @@ build_docker_images() {
     log "Construyendo backend..."
     docker build -t katalis-app-backend:latest \
         --target production \
+        --build-arg ENVIRONMENT=production \
         ./backend || error "Error construyendo backend"
     success "Backend construido exitosamente"
 }
@@ -150,15 +153,17 @@ REDIS_REST_TOKEN=your-redis-rest-token-here
 SUPABASE_URL=your-supabase-url-here
 SUPABASE_ANON_KEY=your-supabase-anon-key-here
 SUPABASE_SERVICE_KEY=your-supabase-service-key-here
+REDIS_PASSWORD=katalis-redis-secret
+CORS_ORIGINS=https://katalisapp.com,https://www.katalisapp.com
 EOF
         warning "Archivo .env creado. Por favor, configura las variables de entorno."
     fi
     
     # Detener servicios existentes
-    docker-compose down
+    docker-compose -f docker-compose.yml down
     
-    # Iniciar servicios
-    docker-compose up -d
+    # Iniciar servicios de producción
+    docker-compose -f docker-compose.prod.yml up -d
     
     # Esperar a que los servicios estén listos
     log "Esperando a que los servicios estén listos..."
@@ -184,22 +189,23 @@ EOF
 show_deployment_info() {
     log "Información de deployment:"
     echo ""
-    echo "📱 Frontend: http://localhost:3000"
+    echo "📱 Frontend: http://localhost (Puerto 80)"
     echo "🔧 Backend API: http://localhost:8000"
     echo "📚 API Docs: http://localhost:8000/docs"
-    echo "💾 Database: PostgreSQL en puerto 5432"
     echo "🔄 Cache: Redis en puerto 6379"
+    echo "📊 Monitoreo: Traefik dashboard en http://localhost:8080"
     echo ""
     echo "Para ver logs:"
-    echo "  docker-compose logs -f [frontend|backend|postgres|redis]"
+    echo "  docker-compose -f docker-compose.prod.yml logs -f [frontend|backend|redis|traefik]"
     echo ""
     echo "Para detener:"
-    echo "  docker-compose down"
+    echo "  docker-compose -f docker-compose.prod.yml down"
     echo ""
     echo "Para deployment en DigitalOcean:"
-    echo "  1. Configura los secrets en GitHub"
-    echo "  2. Push activará el workflow automáticamente"
-    echo "  3. Monitorea en GitHub Actions"
+    echo "  1. Configura los secrets en GitHub Actions"
+    echo "  2. Actualiza GITHUB_REPO en .digitalocean/app.yaml"
+    echo "  3. Push activará el workflow automáticamente"
+    echo "  4. Monitorea en GitHub Actions y DigitalOcean App Platform"
 }
 
 # Función principal

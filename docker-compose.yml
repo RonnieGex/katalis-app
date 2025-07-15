@@ -1,7 +1,8 @@
-# Docker Compose file for KatalisApp
+# Docker Compose file for KatalisApp - Development Environment
+version: '3.8'
 
 services:
-  # Frontend service
+  # Frontend service (development)
   frontend:
     build:
       context: ./frontend
@@ -13,7 +14,8 @@ services:
       backend:
         condition: service_healthy
     environment:
-      - VITE_API_URL=http://backend:8000
+      - VITE_API_URL=http://localhost:8000
+      - NODE_ENV=development
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
@@ -21,27 +23,30 @@ services:
       - katalis-network
     restart: unless-stopped
 
-  # Backend service
+  # Backend service (development)
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      target: production
+      target: development
     ports:
       - "8000:8000"
     environment:
-      - ENVIRONMENT=production
-      - DEBUG=false
-      - SECRET_KEY=${SECRET_KEY:-katalis-secret-key-change-in-production}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-katalis-jwt-secret-change-in-production}
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - SECRET_KEY=${SECRET_KEY:-katalis-dev-secret-key}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-katalis-dev-jwt-secret}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
-      - REDIS_URL=${REDIS_URL}
+      - REDIS_URL=redis://redis:6379/0
       - REDIS_REST_URL=${REDIS_REST_URL}
       - REDIS_REST_TOKEN=${REDIS_REST_TOKEN}
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/__pycache__
     networks:
       - katalis-network
     restart: unless-stopped
@@ -63,14 +68,27 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U katalis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - katalis-network
 
-  # Redis for caching (optional)
+  # Redis for caching and sessions
   redis:
     image: redis:7-alpine
+    command: redis-server --appendonly yes
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - katalis-network
 
@@ -80,3 +98,4 @@ networks:
 
 volumes:
   postgres_data:
+  redis_data:
