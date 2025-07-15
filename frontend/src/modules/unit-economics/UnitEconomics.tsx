@@ -16,6 +16,7 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, A
 import { EducationalTooltip, WisdomPill, EDUCATIONAL_CONTENT, WISDOM_PILLS } from '../../components/ui/TooltipSystem'
 import ExampleScenarios from '../../components/ui/ExampleScenarios'
 import ContextualNavigation from '../../components/ui/ContextualNavigation'
+import { ContentSection } from '../../components/ui/ContentSection'
 import { aiService } from '../../services/aiService'
 import { useAuth } from '../../components/auth/AuthProvider'
 import { useFinancialData } from '../../contexts/FinancialContext'
@@ -201,22 +202,29 @@ const UnitEconomics = () => {
         />
         
         {/* Quick explanation */}
-        <div className="glass rounded-lg p-4 border border-primary/20 mb-6">
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-primary mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-primary mb-1">¿Qué son los Unit Economics?</h3>
-              <p className="text-sm text-text-secondary">
-                Es analizar si cada venta individual te deja ganancia después de considerar 
-                los costos de producción y adquisición de clientes. Si pierdes dinero por unidad, 
-                mientras más vendas, ¡más perderás!
-              </p>
-            </div>
+        <ContentSection 
+          type="educational" 
+          title="Conceptos del Libro"
+          icon={<Info className="w-4 h-4" />}
+          className="mb-6"
+        >
+          <div>
+            <h3 className="font-semibold mb-1">¿Qué son los Unit Economics?</h3>
+            <p className="text-sm text-text-secondary">
+              Es analizar si cada venta individual te deja ganancia después de considerar 
+              los costos de producción y adquisición de clientes. Si pierdes dinero por unidad, 
+              mientras más vendas, ¡más perderás!
+            </p>
           </div>
-        </div>
+        </ContentSection>
 
         {/* Product Selector */}
-        <div className="bg-surface border border-border rounded-lg p-4 mb-6">
+        <ContentSection 
+          type="business" 
+          title="Datos de tu Empresa"
+          icon={<Target className="w-4 h-4" />}
+          className="mb-6"
+        >
           <label className="block text-sm font-medium mb-2">Producto a Analizar</label>
           <select
             value={selectedProductId}
@@ -232,7 +240,7 @@ const UnitEconomics = () => {
           <p className="text-xs text-text-muted mt-2">
             Analizando: {selectedProduct?.name} | Precio: ${selectedProduct?.price} | Costo Variable: ${selectedProduct?.variableCost}
           </p>
-        </div>
+        </ContentSection>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
@@ -531,11 +539,12 @@ const UnitEconomics = () => {
           )}
 
           {aiAnalysis && (
-            <div className="results-card card">
-              <div className="flex items-center gap-3 mb-4">
-                <Brain className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold">Análisis IA - Carlos</h3>
-              </div>
+            <ContentSection 
+              type="ai" 
+              title="Análisis Inteligente"
+              icon={<Brain className="w-4 h-4" />}
+              className="results-card"
+            >
               <div className="space-y-4">
                 {aiAnalysis.recommendations && (
                   <div>
@@ -557,7 +566,7 @@ const UnitEconomics = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </ContentSection>
           )}
 
           {/* Recommendations */}

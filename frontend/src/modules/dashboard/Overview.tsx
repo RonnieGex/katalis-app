@@ -25,6 +25,8 @@ import {
   Cell
 } from 'recharts'
 import LearningProgress from '../../components/ui/LearningProgress'
+import ContentTypeBadge from '../../components/ui/ContentTypeBadge'
+import ContentCard from '../../components/ui/ContentCard'
 import { useNavigate } from 'react-router-dom'
 import { useFinancialData } from '../../contexts/FinancialContext'
 
@@ -223,7 +225,10 @@ const Overview = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Dashboard - {company.name}</h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold">Dashboard - {company.name}</h1>
+              <ContentTypeBadge type="company" size="sm" />
+            </div>
             <p className="text-text-secondary">
               {company.industry} • {company.employees} empleados • Resumen al {new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
@@ -414,68 +419,32 @@ const Overview = () => {
       <div className="mt-8">
         <h3 className="text-xl font-bold mb-6">Acciones Rápidas</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div 
+          <ContentCard
+            type="company"
+            title="Generar Reporte Mensual"
+            description="Crea un informe completo de este mes con todos los datos financieros"
             onClick={handleGenerateMonthlyReport}
-            className="tool-card-enhanced cursor-pointer"
-          >
-            <span className="tool-badge-enhanced">
-              Reportes
-            </span>
-            
-            <div className="tool-icon-enhanced">
-              📊
-            </div>
-            
-            <h4 className="tool-title-enhanced">Generar Reporte Mensual</h4>
-            <p className="tool-description-enhanced">Crea un informe completo de este mes con todos los datos financieros</p>
-            
-            <div className="tool-cta-enhanced">
-              Crear reporte
-              <span className="tool-cta-arrow">→</span>
-            </div>
-          </div>
+            badge="Reportes"
+            icon={FileText}
+          />
 
-          <div 
+          <ContentCard
+            type="ai"
+            title="Optimizar Gastos"
+            description="Recibe sugerencias de la IA para reducir costos y mejorar eficiencia"
             onClick={handleOptimizeExpenses}
-            className="tool-card-enhanced cursor-pointer"
-          >
-            <span className="tool-badge-enhanced">
-              IA
-            </span>
-            
-            <div className="tool-icon-enhanced">
-              💡
-            </div>
-            
-            <h4 className="tool-title-enhanced">Optimizar Gastos</h4>
-            <p className="tool-description-enhanced">Recibe sugerencias de la IA para reducir costos y mejorar eficiencia</p>
-            
-            <div className="tool-cta-enhanced">
-              Ver sugerencias
-              <span className="tool-cta-arrow">→</span>
-            </div>
-          </div>
+            badge="IA"
+            icon={TrendingUp}
+          />
 
-          <div 
+          <ContentCard
+            type="ai"
+            title="Proyectar Próximo Mes"
+            description="Simula escenarios futuros y planifica tu crecimiento"
             onClick={handleProjectNextMonth}
-            className="tool-card-enhanced cursor-pointer"
-          >
-            <span className="tool-badge-enhanced">
-              Proyección
-            </span>
-            
-            <div className="tool-icon-enhanced">
-              📈
-            </div>
-            
-            <h4 className="tool-title-enhanced">Proyectar Próximo Mes</h4>
-            <p className="tool-description-enhanced">Simula escenarios futuros y planifica tu crecimiento</p>
-            
-            <div className="tool-cta-enhanced">
-              Crear proyección
-              <span className="tool-cta-arrow">→</span>
-            </div>
-          </div>
+            badge="Proyección"
+            icon={TrendingUp}
+          />
         </div>
       </div>
     </div>

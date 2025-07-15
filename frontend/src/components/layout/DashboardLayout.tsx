@@ -79,21 +79,23 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isLoadingAI, setIsLoadingAI] = useState(false)
 
   const menuItems = [
-    { path: '/app/dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: null },
-    { path: '/app/cash-flow', icon: DollarSign, label: 'Flujo de Caja', badge: null },
-    { path: '/app/unit-economics', icon: Calculator, label: 'Unit Economics', badge: null },
-    { path: '/app/costs-pricing', icon: TrendingUp, label: 'Costos y Precios', badge: null },
-    { path: '/app/profitability', icon: PieChart, label: 'Rentabilidad', badge: null },
-    { path: '/app/planning', icon: FileText, label: 'Planificación', badge: null },
-    { path: '/app/reports', icon: FileText, label: 'Reportes', badge: null },
-    { path: '/app/automation', icon: Zap, label: 'Automatización', badge: null },
-    { path: '/app/growth', icon: Target, label: 'Crecimiento', badge: null },
-    { path: '/app/ai-agents', icon: Bot, label: 'Agentes IA', badge: '🤖' },
+    // Company Data - Real business information
+    { path: '/app/dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: null, type: 'company' as const },
+    { path: '/app/cash-flow', icon: DollarSign, label: 'Flujo de Caja', badge: null, type: 'company' as const },
+    { path: '/app/unit-economics', icon: Calculator, label: 'Unit Economics', badge: null, type: 'company' as const },
+    { path: '/app/costs-pricing', icon: TrendingUp, label: 'Costos y Precios', badge: null, type: 'company' as const },
+    { path: '/app/profitability', icon: PieChart, label: 'Rentabilidad', badge: null, type: 'company' as const },
+    { path: '/app/planning', icon: FileText, label: 'Planificación', badge: null, type: 'company' as const },
+    { path: '/app/reports', icon: FileText, label: 'Reportes', badge: null, type: 'company' as const },
+    
+    // AI Agents - Intelligent analysis
+    { path: '/app/ai-agents', icon: Bot, label: 'Agentes IA', badge: '🤖', type: 'ai' as const },
+    { path: '/app/automation', icon: Zap, label: 'Automatización', badge: null, type: 'ai' as const },
+    { path: '/app/growth', icon: Target, label: 'Crecimiento', badge: null, type: 'ai' as const },
   ]
 
   const bottomMenuItems = [
-    { path: '/app/settings', icon: Settings, label: 'Configuración' },
-    { path: '/support', icon: HelpCircle, label: 'Ayuda y Soporte' },
+    { path: '/app/settings', icon: Settings, label: 'Configuración', type: 'company' as const },
   ]
 
   // Fetch data from backend APIs
@@ -255,34 +257,103 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
           {/* Main Navigation */}
           <nav className="flex-1 px-4 py-6 overflow-y-auto">
-            <div className="space-y-1">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
-                    location.pathname === item.path
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-light'
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              ))}
+            {/* Company Data Section */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-2 px-2 mb-3">
+                <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                <span className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">Datos Empresa</span>
+              </div>
+              <div className="space-y-1">
+                {menuItems.filter(item => item.type === 'company').map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 border-l-2 ${
+                      location.pathname === item.path
+                        ? 'bg-cyan-500/10 text-cyan-400 border-l-cyan-400'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-light border-l-transparent hover:border-l-cyan-400/50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <item.icon className="w-5 h-5" />
+                      <span className="font-medium">{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
             </div>
 
-            {/* AI Assistant */}
-            <div className="mt-6 p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+            {/* AI Agents Section */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-2 px-2 mb-3">
+                <div className="w-2 h-2 bg-violet-400 rounded-full"></div>
+                <span className="text-xs font-semibold text-violet-400 uppercase tracking-wider">Agentes IA</span>
+              </div>
+              <div className="space-y-1">
+                {menuItems.filter(item => item.type === 'ai').map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 border-l-2 ${
+                      location.pathname === item.path
+                        ? 'bg-violet-500/10 text-violet-400 border-l-violet-400'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-light border-l-transparent hover:border-l-violet-400/50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <item.icon className="w-5 h-5" />
+                      <span className="font-medium">{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="text-xs bg-violet-500/20 text-violet-400 px-2 py-1 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Educational Content Link */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-2 px-2 mb-3">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Libro & Guías</span>
+              </div>
+              <div className="space-y-1">
+                <Link
+                  to="/guias-del-libro"
+                  className="flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 border-l-2 border-l-transparent hover:border-l-emerald-400/50 text-text-secondary hover:text-text-primary hover:bg-surface-light"
+                >
+                  <div className="flex items-center space-x-3">
+                    <BookOpen className="w-5 h-5" />
+                    <span className="font-medium">Guías del Libro</span>
+                  </div>
+                  <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full">
+                    📚
+                  </span>
+                </Link>
+                <Link
+                  to="/centro-de-ayuda"
+                  className="flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 border-l-2 border-l-transparent hover:border-l-emerald-400/50 text-text-secondary hover:text-text-primary hover:bg-surface-light"
+                >
+                  <div className="flex items-center space-x-3">
+                    <HelpCircle className="w-5 h-5" />
+                    <span className="font-medium">Centro de Ayuda</span>
+                  </div>
+                </Link>
+              </div>
+            </div>
+
+            {/* Quick AI Assistant */}
+            <div className="mt-6 p-4 bg-gradient-to-br from-violet-500/10 to-violet-500/5 rounded-lg border border-violet-500/20">
               <div className="flex items-center space-x-2 mb-2">
-                <Sparkles className="w-5 h-5 text-primary" />
+                <Sparkles className="w-5 h-5 text-violet-400" />
                 <span className="font-semibold text-text-primary">Asistente IA</span>
               </div>
               <p className="text-sm text-text-secondary mb-3">
@@ -290,7 +361,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </p>
               <button 
                 onClick={() => setShowAIModal(true)}
-                className="w-full btn-primary text-sm"
+                className="w-full bg-violet-500 hover:bg-violet-600 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
               >
                 Hacer una pregunta
               </button>
@@ -304,7 +375,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="flex items-center space-x-3 px-4 py-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-light transition-all duration-200"
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 border-l-2 ${
+                    location.pathname === item.path
+                      ? 'bg-cyan-500/10 text-cyan-400 border-l-cyan-400'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-light border-l-transparent hover:border-l-cyan-400/50'
+                  }`}
                 >
                   <item.icon className="w-5 h-5" />
                   <span className="font-medium">{item.label}</span>
@@ -313,7 +388,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-text-secondary hover:text-error hover:bg-error/10 transition-all duration-200"
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-text-secondary hover:text-error hover:bg-error/10 transition-all duration-200 border-l-2 border-l-transparent"
               >
                 <LogOut className="w-5 h-5" />
                 <span className="font-medium">Cerrar Sesión</span>
@@ -514,7 +589,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </main>
       </div>
 
-      {/* Premium AI Assistant Modal */}
+      {/* AI Assistant Modal */}
       {showAIModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-surface border border-primary/30 rounded-xl max-w-lg w-full max-h-[80vh] overflow-hidden shadow-2xl">
@@ -524,7 +599,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-text-primary">Consultor Financiero IA Premium</h3>
+                  <h3 className="font-semibold text-text-primary">Consultor Financiero IA</h3>
                   <p className="text-xs text-text-secondary">Powered by OpenAI + "Finanzas para Emprendedores"</p>
                 </div>
               </div>
@@ -547,7 +622,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     <div className="w-6 h-6 bg-gradient-to-br from-primary to-purple-500 rounded-md flex items-center justify-center">
                       <Sparkles className="w-4 h-4 text-white" />
                     </div>
-                    <span className="font-semibold text-primary">💡 Asistente IA Premium</span>
+                    <span className="font-semibold text-primary">💡 Asistente IA</span>
                   </div>
                   <p className="text-sm text-text-secondary">
                     Basado en "Finanzas para Emprendedores" - Obtén recomendaciones personalizadas con citas del libro y análisis avanzado.
@@ -579,7 +654,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4" />
-                        <span>Obtener Recomendación Premium</span>
+                        <span>Obtener Recomendación IA</span>
                       </>
                     )}
                   </button>

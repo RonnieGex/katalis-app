@@ -16,6 +16,7 @@ import {
   Shield,
   Zap
 } from 'lucide-react'
+import ContentTypeBadge from '../../components/ui/ContentTypeBadge'
 
 interface Agent {
   id: string
@@ -239,89 +240,73 @@ const AIAgents = () => {
 
   return (
     <div className="space-y-6">
-      {/* Premium Header */}
-      <div className="bg-gradient-to-br from-primary/20 via-purple-500/15 to-indigo-500/15 border border-primary/30 rounded-2xl p-8 mb-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-xl"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-full blur-lg"></div>
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Sparkles className="w-8 h-8 text-white animate-pulse" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-purple-500 to-indigo-500 bg-clip-text text-transparent mb-2">
-                  Agentes de IA Premium
-                </h1>
-                <p className="text-text-secondary text-lg">
-                  Nuestro elemento más valioso: IA que revoluciona tu gestión financiera
-                </p>
-              </div>
+      {/* Header */}
+      <div className="bg-gradient-to-br from-violet-500/10 to-violet-500/5 border border-violet-500/20 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-lg flex items-center justify-center">
+              <Bot className="w-6 h-6 text-white" />
             </div>
-            <div className="flex flex-col items-center space-y-2">
-              <div className="bg-gradient-to-r from-primary to-purple-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                ⭐ PREMIUM FEATURE
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <h1 className="text-2xl font-bold text-text-primary">Agentes de IA</h1>
+                <ContentTypeBadge type="ai" size="sm" />
               </div>
-              <div className="text-xs text-text-secondary bg-surface/50 px-3 py-1 rounded-full border border-primary/20">
-                Powered by AI
-              </div>
+              <p className="text-text-secondary">
+                Asistentes inteligentes especializados en análisis financiero
+              </p>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-6 mt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">6</div>
-              <div className="text-sm text-text-secondary">Agentes Activos</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-success">96.5%</div>
-              <div className="text-sm text-text-secondary">Precisión Promedio</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-warning">202h</div>
-              <div className="text-sm text-text-secondary">Ahorro Mensual</div>
-            </div>
+          <div className="text-xs text-text-secondary bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/20">
+            6 Agentes Activos
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="text-lg font-bold text-violet-400">96.5%</div>
+            <div className="text-xs text-text-secondary">Precisión</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-violet-400">880</div>
+            <div className="text-xs text-text-secondary">Tareas</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-violet-400">202h</div>
+            <div className="text-xs text-text-secondary">Ahorro/mes</div>
           </div>
         </div>
       </div>
 
-      {/* Premium Agent Grid */}
+      {/* Agent Grid */}
       <div className="grid md:grid-cols-2 gap-6">
         {agents.map((agent) => (
           <div 
             key={agent.id}
-            className={`bg-surface border rounded-xl p-6 cursor-pointer transition-all duration-300 hover:shadow-green hover:-translate-y-1 hover:border-primary/50 relative overflow-hidden group ${
-              selectedAgent === agent.id ? 'border-primary shadow-green-lg scale-[1.02]' : 'border-border'
+            className={`bg-surface border rounded-xl p-6 cursor-pointer transition-all hover:shadow-lg hover:border-primary/50 ${
+              selectedAgent === agent.id ? 'border-primary shadow-lg' : 'border-border'
             }`}
             onClick={() => setSelectedAgent(agent.id)}
           >
-            {/* Premium glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative z-10">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div 
-                  className={`w-12 h-12 bg-gradient-to-br from-primary/20 to-purple-500/10 rounded-xl flex items-center justify-center ${agent.color} shadow-lg border border-primary/20 group-hover:shadow-primary/30 transition-all duration-300`}
+                  className={`w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center ${agent.color}`}
                   role="img"
                   aria-label={`Icono de ${agent.name}`}
                 >
-                  <agent.icon className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                  <agent.icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-text-primary group-hover:text-primary transition-colors duration-300">{agent.name}</h3>
+                  <h3 className="font-semibold text-text-primary">{agent.name}</h3>
                   <div className="flex items-center space-x-2 mt-1">
                     <div className={`w-2 h-2 rounded-full ${
-                      agent.status === 'active' ? 'bg-success shadow-success/50 shadow-lg' : 
-                      agent.status === 'processing' ? 'bg-warning animate-pulse shadow-warning/50 shadow-lg' : 'bg-gray-500'
+                      agent.status === 'active' ? 'bg-success' : 
+                      agent.status === 'processing' ? 'bg-warning animate-pulse' : 'bg-gray-500'
                     }`} />
-                    <span className="text-xs text-text-secondary font-medium">
-                      {agent.status === 'active' ? '✅ Activo' : 
-                       agent.status === 'processing' ? '⚡ Procesando' : '⏸️ Pausado'}
+                    <span className="text-xs text-text-secondary">
+                      {agent.status === 'active' ? 'Activo' : 
+                       agent.status === 'processing' ? 'Procesando' : 'Pausado'}
                     </span>
-                    {agent.status === 'active' && (
-                      <span className="text-xs bg-success/20 text-success px-2 py-1 rounded-full border border-success/30">
-                        PREMIUM
-                      </span>
-                    )}
                   </div>
                 </div>
               </div>
@@ -340,8 +325,7 @@ const AIAgents = () => {
               </button>
               </div>
 
-              <p className="text-text-secondary text-sm mb-4 group-hover:text-text-primary transition-colors duration-300">{agent.description}</p>
-            </div>
+              <p className="text-text-secondary text-sm mb-4">{agent.description}</p>
 
             {/* Tasks */}
             <div className="mb-4">
@@ -358,18 +342,18 @@ const AIAgents = () => {
               </div>
             </div>
 
-            {/* Premium Metrics */}
+            {/* Metrics */}
             {agent.metrics && (
-              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border group-hover:border-primary/30 transition-colors duration-300">
-                <div className="text-center bg-success/10 rounded-lg p-2 border border-success/20">
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
+                <div className="text-center">
                   <div className="text-lg font-bold text-success">{agent.metrics.accuracy}%</div>
                   <div className="text-xs text-text-secondary">Precisión</div>
                 </div>
-                <div className="text-center bg-primary/10 rounded-lg p-2 border border-primary/20">
+                <div className="text-center">
                   <div className="text-lg font-bold text-primary">{agent.metrics.tasksCompleted}</div>
                   <div className="text-xs text-text-secondary">Tareas</div>
                 </div>
-                <div className="text-center bg-warning/10 rounded-lg p-2 border border-warning/20">
+                <div className="text-center">
                   <div className="text-lg font-bold text-warning">{agent.metrics.timeSaved}</div>
                   <div className="text-xs text-text-secondary">Ahorro</div>
                 </div>
@@ -379,67 +363,11 @@ const AIAgents = () => {
         ))}
       </div>
 
-      {/* Premium Value Proposition */}
-      <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <Zap className="w-6 h-6 text-warning animate-pulse" />
-            <h3 className="text-xl font-bold text-text-primary">¿Por qué son Premium nuestros Agentes de IA?</h3>
-          </div>
-          <div className="bg-gradient-to-r from-warning to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold">
-            💎 VALOR PREMIUM
-          </div>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="bg-surface/50 border border-primary/20 rounded-lg p-4">
-            <div className="text-center mb-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-success to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Brain className="w-6 h-6 text-white" />
-              </div>
-              <h4 className="font-semibold text-text-primary">IA Empresarial</h4>
-            </div>
-            <p className="text-sm text-text-secondary text-center">
-              Tecnología de IA de nivel empresarial que normalmente cuesta $10,000+ implementar.
-            </p>
-          </div>
-          <div className="bg-surface/50 border border-primary/20 rounded-lg p-4">
-            <div className="text-center mb-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-warning to-orange-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Target className="w-6 h-6 text-white" />
-              </div>
-              <h4 className="font-semibold text-text-primary">ROI Garantizado</h4>
-            </div>
-            <p className="text-sm text-text-secondary text-center">
-              Ahorro promedio de 202 horas/mes = $15,000+ USD de valor generado mensualmente.
-            </p>
-          </div>
-          <div className="bg-surface/50 border border-primary/20 rounded-lg p-4">
-            <div className="text-center mb-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <h4 className="font-semibold text-text-primary">Exclusivo</h4>
-            </div>
-            <p className="text-sm text-text-secondary text-center">
-              Agentes especializados únicos en el mercado, entrenados específicamente para PyMEs latinas.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Premium Interactive Chat */}
-      <div className="bg-gradient-to-br from-surface to-surface-light border border-primary/20 rounded-xl p-6 shadow-lg">
+      {/* Interactive Chat */}
+      <div className="bg-surface border border-border rounded-xl p-6">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-purple-500 rounded-lg flex items-center justify-center">
-            <MessageSquare className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-text-primary">Chat Premium con Agentes IA</h3>
-            <p className="text-xs text-text-secondary">Respuestas inteligentes basadas en 'Finanzas para Emprendedores'</p>
-          </div>
-          <div className="ml-auto bg-gradient-to-r from-primary to-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-            🚀 AI POWERED
-          </div>
+          <MessageSquare className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-semibold text-text-primary">Chat con Agentes IA</h3>
         </div>
 
         {/* Chat Messages */}
@@ -481,10 +409,9 @@ const AIAgents = () => {
           />
           <button
             onClick={sendMessage}
-            className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary-dark hover:to-purple-600 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-primary/30 flex items-center space-x-2"
+            className="bg-primary hover:bg-primary-dark text-background px-4 py-2 rounded-lg font-medium transition-colors"
           >
-            <span>Enviar</span>
-            <Sparkles className="w-4 h-4" />
+            Enviar
           </button>
         </div>
       </div>

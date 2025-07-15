@@ -49,6 +49,31 @@
   --error: #EF4444;
   --info: #3B82F6;
   
+  /* 🎯 Content Type Colors - Harmonious Analogous Palette */
+  /* Company Data - Cyan (business/data) */
+  --content-company-primary: #06B6D4;
+  --content-company-light: #67E8F9;
+  --content-company-dark: #0891B2;
+  --content-company-bg: rgba(6, 182, 212, 0.08);
+  --content-company-border: rgba(6, 182, 212, 0.25);
+  --content-company-glow: rgba(6, 182, 212, 0.20);
+  
+  /* Educational Content - Emerald (growth/learning - maintains brand) */
+  --content-educational-primary: #10B981;
+  --content-educational-light: #6EE7B7;
+  --content-educational-dark: #059669;
+  --content-educational-bg: rgba(16, 185, 129, 0.08);
+  --content-educational-border: rgba(16, 185, 129, 0.25);
+  --content-educational-glow: rgba(16, 185, 129, 0.20);
+  
+  /* AI Agents - Violet (innovation/intelligence) */
+  --content-ai-primary: #8B5CF6;
+  --content-ai-light: #C4B5FD;
+  --content-ai-dark: #7C3AED;
+  --content-ai-bg: rgba(139, 92, 246, 0.08);
+  --content-ai-border: rgba(139, 92, 246, 0.25);
+  --content-ai-glow: rgba(139, 92, 246, 0.20);
+  
   /* 📖 Tipografía */
   --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;

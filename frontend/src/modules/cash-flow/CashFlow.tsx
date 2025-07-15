@@ -13,11 +13,13 @@ import {
   Download,
   Eye,
   Edit,
-  Brain
+  Brain,
+  BarChart3
 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
 import ExampleScenarios from '../../components/ui/ExampleScenarios'
 import ContextualNavigation from '../../components/ui/ContextualNavigation'
+import { ContentSection } from '../../components/ui/ContentSection'
 import { aiService } from '../../services/aiService'
 import { useAuth } from '../../components/auth/AuthProvider'
 import { useFinancialData } from '../../contexts/FinancialContext'
@@ -354,10 +356,18 @@ const CashFlow = () => {
       {/* Header */}
       <div className="cash-header">
         <h1 className="text-3xl font-bold mb-2">Flujo de Caja</h1>
-        <p className="text-text-secondary mb-6">
-          Proyecta tu flujo de efectivo y anticipa problemas de liquidez antes de que ocurran.
-          Basado en los Capítulos 3-4 de "Finanzas para Emprendedores".
-        </p>
+        
+        <ContentSection 
+          type="educational" 
+          title="Conceptos del Libro"
+          icon={<Info className="w-4 h-4" />}
+          className="mb-6"
+        >
+          <p className="text-sm text-text-secondary">
+            Proyecta tu flujo de efectivo y anticipa problemas de liquidez antes de que ocurran.
+            Basado en los Capítulos 3-4 de "Finanzas para Emprendedores".
+          </p>
+        </ContentSection>
 
         {/* Controls */}
         <div className="flex items-center justify-between mb-6">
@@ -412,7 +422,13 @@ const CashFlow = () => {
       </div>
 
       {/* Key Metrics */}
-      <div className="cash-card grid grid-cols-1 md:grid-cols-4 gap-6">
+      <ContentSection 
+        type="business" 
+        title="Métricas de tu Empresa"
+        icon={<DollarSign className="w-4 h-4" />}
+        className="cash-card"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Total Income */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
@@ -472,10 +488,17 @@ const CashFlow = () => {
             {cashFlowMargin.toFixed(1)}%
           </p>
         </div>
-      </div>
+        </div>
+      </ContentSection>
 
       {/* Charts */}
-      <div className="grid lg:grid-cols-2 gap-8">
+      <ContentSection 
+        type="business" 
+        title="Proyecciones y Gráficos"
+        icon={<BarChart3 className="w-4 h-4" />}
+        className=""
+      >
+        <div className="grid lg:grid-cols-2 gap-8">
         {/* Cash Flow Chart */}
         <div className="cash-card card">
           <h3 className="text-lg font-semibold mb-4">Proyección de Flujo de Caja</h3>
@@ -529,7 +552,7 @@ const CashFlow = () => {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </ContentSection>
 
       {/* Entries Management */}
       <div className="cash-card card">
@@ -777,10 +800,13 @@ const CashFlow = () => {
       )}
 
       {aiAnalysis && (
-        <div className="cash-card card">
-          <div className="flex items-center gap-3 mb-4">
-            <Brain className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold">Análisis IA - Maya</h3>
+        <ContentSection 
+          type="ai" 
+          title="Análisis IA - Maya"
+          icon={<Brain className="w-4 h-4" />}
+          className="cash-card card"
+        >
+          <div className="mb-4">
             <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
               Basado en "Finanzas para Emprendedores"
             </span>
@@ -877,12 +903,16 @@ const CashFlow = () => {
               </div>
             )}
           </div>
-        </div>
+        </ContentSection>
       )}
 
       {/* Insights */}
-      <div className="cash-card card">
-        <h3 className="text-lg font-semibold mb-4">Insights y Recomendaciones</h3>
+      <ContentSection 
+        type="educational" 
+        title="Insights y Recomendaciones"
+        icon={<CheckCircle className="w-4 h-4" />}
+        className="cash-card card"
+      >
         <div className="grid md:grid-cols-2 gap-4">
           {netCashFlow < 0 && (
             <div className="bg-error/10 border border-error/20 rounded-lg p-4">
@@ -926,7 +956,7 @@ const CashFlow = () => {
             </div>
           )}
         </div>
-      </div>
+      </ContentSection>
 
       {/* Example Scenarios */}
       <div className="cash-card card">
