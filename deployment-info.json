@@ -1,0 +1,19 @@
+{
+  "deployment_time": "2025-07-15T17:18:02Z",
+  "commit_hash": "e0a3c0fa3de455152fb9536a85f20c272126ebbf",
+  "commit_short": "e0a3c0f",
+  "branch": "main",
+  "version": "1.0.0",
+  "environment": "production",
+  "changes": [
+    "✅ Eliminada palabra 'Premium' de agentes IA",
+    "✅ Implementada separación visual de contenido (educativo/empresarial/IA)",
+    "✅ Documentación profesional de clase mundial",
+    "✅ Infraestructura Docker optimizada",
+    "✅ Configuración DigitalOcean actualizada",
+    "✅ README profesional con badges y métricas",
+    "✅ 8 documentos técnicos profesionales",
+    "✅ Eliminados 13 archivos obsoletos",
+    "✅ ComponenteContentSection con colores distintivos"
+  ]
+}

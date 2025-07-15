@@ -552,6 +552,7 @@ const CashFlow = () => {
             </AreaChart>
           </ResponsiveContainer>
         </div>
+        </div>
       </ContentSection>
 
       {/* Entries Management */}

@@ -11,6 +11,36 @@ interface ContentTypeBadgeProps {
   className?: string
 }
 
+export const CONTENT_TYPE_CONFIG = {
+  company: {
+    icon: BarChart3,
+    label: 'Datos Empresa',
+    shortLabel: 'Empresa',
+    bgColor: 'bg-cyan-500/10',
+    textColor: 'text-cyan-600',
+    borderColor: 'border-cyan-500/30',
+    dotColor: 'bg-cyan-500'
+  },
+  educational: {
+    icon: BookOpen,
+    label: 'Contenido Educativo',
+    shortLabel: 'Educativo',
+    bgColor: 'bg-emerald-500/10',
+    textColor: 'text-emerald-600',
+    borderColor: 'border-emerald-500/30',
+    dotColor: 'bg-emerald-500'
+  },
+  ai: {
+    icon: Brain,
+    label: 'Análisis IA',
+    shortLabel: 'IA',
+    bgColor: 'bg-purple-500/10',
+    textColor: 'text-purple-600',
+    borderColor: 'border-purple-500/30',
+    dotColor: 'bg-purple-500'
+  }
+}
+
 export const ContentTypeBadge: React.FC<ContentTypeBadgeProps> = ({
   type,
   size = 'md',
@@ -18,37 +48,7 @@ export const ContentTypeBadge: React.FC<ContentTypeBadgeProps> = ({
   showText = true,
   className = ''
 }) => {
-  const config = {
-    company: {
-      icon: BarChart3,
-      label: 'Datos Empresa',
-      shortLabel: 'Empresa',
-      bgColor: 'bg-cyan-500/10',
-      textColor: 'text-cyan-600',
-      borderColor: 'border-cyan-500/30',
-      dotColor: 'bg-cyan-500'
-    },
-    educational: {
-      icon: BookOpen,
-      label: 'Contenido Educativo',
-      shortLabel: 'Educativo',
-      bgColor: 'bg-emerald-500/10', 
-      textColor: 'text-emerald-600',
-      borderColor: 'border-emerald-500/30',
-      dotColor: 'bg-emerald-500'
-    },
-    ai: {
-      icon: Brain,
-      label: 'Agentes IA',
-      shortLabel: 'IA',
-      bgColor: 'bg-violet-500/10',
-      textColor: 'text-violet-600', 
-      borderColor: 'border-violet-500/30',
-      dotColor: 'bg-violet-500'
-    }
-  }
-
-  const typeConfig = config[type]
+  const typeConfig = CONTENT_TYPE_CONFIG[type] || CONTENT_TYPE_CONFIG.company
   const IconComponent = typeConfig.icon
 
   const sizeClasses = {

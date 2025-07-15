@@ -8,7 +8,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Calendar,
-  Download
+  Download,
+  FileText
 } from 'lucide-react'
 import { 
   AreaChart, 

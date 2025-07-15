@@ -1,6 +1,6 @@
 import React from 'react'
-import { LucideIcon } from 'lucide-react'
-import ContentTypeBadge, { ContentType, CONTENT_TYPE_CONFIG } from './ContentTypeBadge'
+import type { LucideIcon } from 'lucide-react'
+import ContentTypeBadge, { type ContentType, CONTENT_TYPE_CONFIG } from './ContentTypeBadge'
 
 interface ContentCardProps {
   type: ContentType

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Info, BarChart3, BookOpen, Brain } from 'lucide-react'
-import ContentTypeBadge, { CONTENT_TYPE_CONFIG } from './ContentTypeBadge'
+import ContentTypeBadge, { CONTENT_TYPE_CONFIG, type ContentType } from './ContentTypeBadge'
 
 interface ContentTypeGuideProps {
   className?: string
@@ -33,10 +33,10 @@ const ContentTypeGuide: React.FC<ContentTypeGuideProps> = ({
             
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <h4 className="font-semibold text-text-primary">{config.name}</h4>
-                <ContentTypeBadge type={key as any} size="sm" />
+                <h4 className="font-semibold text-text-primary">{config.label}</h4>
+                <ContentTypeBadge type={key as ContentType} size="sm" />
               </div>
-              <p className="text-text-secondary text-sm">{config.description}</p>
+              <p className="text-text-secondary text-sm">{config.label}</p>
               
               {/* Example features */}
               <div className="mt-3">

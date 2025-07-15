@@ -9,6 +9,7 @@ import {
   TrendingUp, 
   Calculator,
   FileText,
+  BookOpen,
   Settings,
   HelpCircle,
   LogOut,
