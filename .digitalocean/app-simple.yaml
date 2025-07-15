@@ -1,0 +1,99 @@
+name: katalis-app
+region: nyc
+
+services:
+- name: frontend
+  source_dir: /frontend
+  github:
+    repo: RonnieGex/katalis-app
+    branch: main
+    deploy_on_push: true
+  build_command: npm install && npm run build
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 3000
+  routes:
+  - path: /
+  health_check:
+    http_path: /
+    initial_delay_seconds: 15
+    period_seconds: 30
+    timeout_seconds: 10
+    success_threshold: 1
+    failure_threshold: 3
+  envs:
+  - key: VITE_API_URL
+    value: https://katalis-app-32c9h.ondigitalocean.app
+    type: GENERAL
+  - key: NODE_ENV
+    value: production
+    type: GENERAL
+
+- name: backend
+  source_dir: /backend
+  github:
+    repo: RonnieGex/katalis-app
+    branch: main
+    deploy_on_push: true
+  build_command: pip install -r requirements.txt
+  run_command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-s
+  http_port: 8000
+  routes:
+  - path: /docs
+  - path: /redoc
+  - path: /health
+  - path: /openapi.json
+  - path: /api
+  health_check:
+    http_path: /health
+    initial_delay_seconds: 45
+    period_seconds: 30
+    timeout_seconds: 10
+    success_threshold: 1
+    failure_threshold: 3
+  envs:
+  - key: ENVIRONMENT
+    value: production
+    type: GENERAL
+  - key: DEBUG
+    value: "false"
+    type: GENERAL
+  - key: SECRET_KEY
+    value: ${SECRET_KEY}
+    type: SECRET
+  - key: JWT_SECRET_KEY
+    value: ${JWT_SECRET_KEY}
+    type: SECRET
+  - key: OPENAI_API_KEY
+    value: ${OPENAI_API_KEY}
+    type: SECRET
+  - key: DEEPSEEK_API_KEY
+    value: ${DEEPSEEK_API_KEY}
+    type: SECRET
+  - key: SUPABASE_URL
+    value: ${SUPABASE_URL}
+    type: SECRET
+  - key: SUPABASE_ANON_KEY
+    value: ${SUPABASE_ANON_KEY}
+    type: SECRET
+  - key: SUPABASE_SERVICE_KEY
+    value: ${SUPABASE_SERVICE_KEY}
+    type: SECRET
+  - key: REDIS_URL
+    value: ${REDIS_URL}
+    type: SECRET
+  - key: REDIS_REST_URL
+    value: ${REDIS_REST_URL}
+    type: SECRET
+  - key: REDIS_REST_TOKEN
+    value: ${REDIS_REST_TOKEN}
+    type: SECRET
+  - key: CORS_ORIGINS
+    value: https://katalis-app-32c9h.ondigitalocean.app,https://katalisapp.com,https://www.katalisapp.com
+    type: GENERAL
+
+# Using external Redis (Upstash) - no internal database needed
