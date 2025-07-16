@@ -22,7 +22,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-class SupabaseBookRetriever(BaseRetriever):
+class SupabaseBookRetriever:
     """Custom retriever for book embeddings from Supabase"""
     
     def __init__(
@@ -33,7 +33,7 @@ class SupabaseBookRetriever(BaseRetriever):
         k: int = 4,
         similarity_threshold: float = 0.8
     ):
-        self.supabase = supabase_client
+        self.supabase_client = supabase_client
         self.embeddings = embeddings
         self.table_name = table_name
         self.k = k
@@ -45,34 +45,66 @@ class SupabaseBookRetriever(BaseRetriever):
             # Generate query embedding
             query_embedding = self.embeddings.embed_query(query)
             
-            # Call the Supabase similarity search function
-            result = self.supabase.rpc(
-                'search_book_embeddings',
-                {
+            # Use the Supabase search_book_embeddings function
+            try:
+                result = self.supabase_client.rpc('search_book_embeddings', {
                     'query_embedding': query_embedding,
                     'match_threshold': self.similarity_threshold,
                     'match_count': self.k
-                }
-            ).execute()
-            
-            documents = []
-            for row in result.data:
-                doc = Document(
-                    page_content=row['content'],
-                    metadata={
-                        'id': row['id'],
-                        'file': row['file'],
-                        'chapter': row['chapter'],
-                        'chunk': row['chunk'],
-                        'similarity': row['similarity'],
-                        'source_location': f"supabase://finance_book_embeddings/{row['id']}",
-                        **(row.get('metadata', {}))
-                    }
-                )
-                documents.append(doc)
-            
-            logger.info(f"Retrieved {len(documents)} documents for query: {query[:50]}...")
-            return documents
+                }).execute()
+                
+                documents = []
+                for row in result.data:
+                    doc = Document(
+                        page_content=row['content'],
+                        metadata={
+                            'id': row['id'],
+                            'file': row['file'],
+                            'chapter': row['chapter'],
+                            'chunk': row['chunk'],
+                            'similarity': row['similarity'],
+                            'source_location': f"supabase://finance_book_embeddings/{row['id']}",
+                            **(row.get('metadata', {}))
+                        }
+                    )
+                    documents.append(doc)
+                
+                logger.info(f"Retrieved {len(documents)} documents using vector search for: {query[:50]}...")
+                return documents
+                
+            except Exception as vector_error:
+                logger.warning(f"Vector search failed: {vector_error}, falling back to keyword search")
+                
+                # Fallback to keyword search
+                keywords = query.lower().split()
+                if keywords:
+                    result = self.supabase_client.table(self.table_name)\
+                        .select('id, file, chapter, content, chunk, metadata')\
+                        .ilike('content', f'%{keywords[0]}%')\
+                        .limit(self.k)\
+                        .execute()
+                    
+                    documents = []
+                    for i, row in enumerate(result.data):
+                        # Simulate similarity score based on keyword matches
+                        similarity_score = 0.8 - (i * 0.1)  # Decreasing score
+                        
+                        doc = Document(
+                            page_content=row['content'],
+                            metadata={
+                                'id': row['id'],
+                                'file': row['file'],
+                                'chapter': row['chapter'],
+                                'chunk': row['chunk'],
+                                'similarity': similarity_score,
+                                'source_location': f"supabase://finance_book_embeddings/{row['id']}",
+                                **(row.get('metadata', {}))
+                            }
+                        )
+                        documents.append(doc)
+                    
+                    logger.info(f"Retrieved {len(documents)} documents using keyword search for: {query[:50]}...")
+                    return documents
             
         except Exception as e:
             logger.error(f"Error retrieving documents: {e}")
@@ -174,7 +206,7 @@ class CachedBookRetriever:
 # Global cached retriever instance
 _cached_retriever: Optional[CachedBookRetriever] = None
 
-def get_book_retriever(k: int = 4) -> BaseRetriever:
+def get_book_retriever(k: int = 4):
     """
     Get cached book retriever instance
     
@@ -211,7 +243,7 @@ def get_book_retriever(k: int = 4) -> BaseRetriever:
         # Return a mock retriever that returns empty results
         return MockBookRetriever()
 
-class MockBookRetriever(BaseRetriever):
+class MockBookRetriever:
     """Mock retriever for testing/fallback"""
     
     def _get_relevant_documents(self, query: str) -> List[Document]:

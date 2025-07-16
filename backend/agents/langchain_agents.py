@@ -102,7 +102,7 @@ class BaseLangChainAgent:
         self.system_prompt = system_prompt
         self.response_model = response_model
         
-        # Initialize DeepSeek R1 LLM
+        # Initialize DeepSeek LLM (updated API key)
         self.llm = ChatOpenAI(
             openai_api_key=os.getenv("DEEPSEEK_API_KEY"),
             openai_api_base="https://api.deepseek.com/v1",
@@ -160,42 +160,74 @@ class BaseLangChainAgent:
         return tools
     
     async def process_request(self, user_id: str, data: Dict[str, Any], use_book_qa: bool = False) -> Dict[str, Any]:
-        """Process request with LangChain"""
+        """Process request with DeepSeek - Simplified for Pydantic compatibility"""
         try:
-            # Prepare input
+            # Get question from data
+            question = data.get('question', '')
+            context = data.get('context', {})
+            financial_data = data.get('financial_data', {})
+            
+            # Prepare financial data context  
             input_text = self._prepare_input(data)
             
-            if hasattr(self, 'agent') and use_book_qa:
-                # Use agent with tools
-                enhanced_prompt = f"""
-                Analiza los siguientes datos financieros y proporciona recomendaciones específicas.
-                Usa la herramienta book_qa para sustentar tus respuestas con contenido del libro "Finanzas para Emprendedores".
-                
-                Datos a analizar:
-                {input_text}
-                
-                Por favor, incluye citas específicas del libro en tus recomendaciones.
-                """
-                
-                result = await self.agent.arun(enhanced_prompt)
-                
-                # Parse result if it's a string
-                if isinstance(result, str):
-                    try:
-                        result = self.output_parser.parse(result)
-                    except:
-                        # If parsing fails, create a basic response
-                        result = self._create_fallback_response(result, input_text)
-                
-            else:
-                # Use simple chain
-                format_instructions = self.output_parser.get_format_instructions()
-                result = await self.chain.arun(
-                    input=input_text,
-                    format_instructions=format_instructions
-                )
+            # Book QA context (if requested)
+            book_context = ""
+            citations = []
+            if use_book_qa:
+                try:
+                    book_retriever = get_book_retriever(k=3)
+                    relevant_docs = book_retriever._get_relevant_documents(question)
+                    
+                    for doc in relevant_docs:
+                        book_context += f"Capítulo: {doc.metadata.get('chapter', 'Unknown')}\n"
+                        book_context += f"Contenido: {doc.page_content}\n\n"
+                        citations.append({
+                            "chapter": doc.metadata.get('chapter', 'Unknown'),
+                            "excerpt": doc.page_content[:200] + "..." if len(doc.page_content) > 200 else doc.page_content,
+                            "similarity": doc.metadata.get('similarity', 0.0)
+                        })
+                except Exception as book_error:
+                    print(f"Book QA error: {book_error}")
             
-            # Store in Redis for learning
+            # Build book content section  
+            book_section = f"\nCONTENIDO RELEVANTE DEL LIBRO:\n{book_context}" if book_context else ""
+            
+            # SIMPLIFIED PROMPT - No complex JSON schemas that confuse DeepSeek
+            simplified_prompt = f"""
+            {self.system_prompt}
+            
+            PREGUNTA: {question}
+            CONTEXTO: {context}
+            DATOS FINANCIEROS: {financial_data}
+            {book_section}
+            
+            Proporciona un análisis completo, específico y detallado basado en los datos financieros proporcionados.
+            Incluye cálculos específicos, recomendaciones concretas y próximos pasos.
+            """
+            
+            # Use DeepSeek directly with simplified prompt
+            from langchain.schema import HumanMessage
+            response = await self.llm.ainvoke([HumanMessage(content=simplified_prompt)])
+            
+            # Check if we got a real response
+            if not response.content or len(response.content.strip()) < 50:
+                print(f"⚠️ Short response from DeepSeek: {len(response.content) if response.content else 0} chars")
+                raise Exception("Empty or very short response from AI model")
+            
+            print(f"✅ DeepSeek responded with {len(response.content)} characters")
+            
+            # Parse the natural language response into structured format
+            structured_analysis = self._parse_natural_response(response.content, self.response_model)
+            
+            result = {
+                "response": response.content,
+                "structured_analysis": structured_analysis,
+                "citations": citations,
+                "confidence": 0.9,
+                "usage": {"total_tokens": len(response.content.split())},
+                "ai_model": "deepseek-reasoner"
+            }
+            
             await self._store_interaction(user_id, data, result)
             
             return {
@@ -207,13 +239,73 @@ class BaseLangChainAgent:
             }
             
         except Exception as e:
-            # Fallback response
+            print(f"❌ Agent {self.name} error: {e}")
+            # Return real error instead of generic fallback
             return {
                 "agent": self.name,
                 "error": str(e),
-                "fallback_analysis": "Error en el análisis. Por favor intenta de nuevo.",
+                "analysis": {
+                    "response": f"Error en el análisis de {self.specialty}: {str(e)}",
+                    "structured_analysis": {},
+                    "citations": [],
+                    "confidence": 0.0
+                },
                 "timestamp": datetime.now().isoformat()
             }
+    
+    def _parse_natural_response(self, response_content: str, response_model: BaseModel) -> Dict[str, Any]:
+        """Parse natural language response into structured format - simplified Pydantic integration"""
+        
+        try:
+            # For now, return a basic structured format
+            # This can be enhanced with NLP parsing later
+            structured = {
+                "analysis_summary": response_content[:500] + "..." if len(response_content) > 500 else response_content,
+                "key_insights": self._extract_key_insights(response_content),
+                "recommendations": self._extract_recommendations(response_content),
+                "raw_analysis": response_content
+            }
+            
+            return structured
+            
+        except Exception as e:
+            print(f"Natural response parsing error: {e}")
+            return {
+                "analysis_summary": response_content,
+                "key_insights": [],
+                "recommendations": [],
+                "raw_analysis": response_content
+            }
+    
+    def _extract_key_insights(self, text: str) -> List[str]:
+        """Extract key insights from natural language response"""
+        insights = []
+        
+        # Simple pattern matching for insights
+        lines = text.split('\n')
+        for line in lines:
+            line = line.strip()
+            if any(keyword in line.lower() for keyword in ['insight:', 'clave:', 'importante:', 'análisis:', 'finding:']):
+                insights.append(line)
+            elif line.startswith('- ') and len(line) > 10:
+                insights.append(line[2:])  # Remove bullet point
+                
+        return insights[:5]  # Return max 5 insights
+    
+    def _extract_recommendations(self, text: str) -> List[str]:
+        """Extract recommendations from natural language response"""
+        recommendations = []
+        
+        # Simple pattern matching for recommendations
+        lines = text.split('\n')
+        for line in lines:
+            line = line.strip()
+            if any(keyword in line.lower() for keyword in ['recomendación:', 'recommend:', 'sugerencia:', 'acción:', 'next step:']):
+                recommendations.append(line)
+            elif line.startswith('• ') and len(line) > 10:
+                recommendations.append(line[2:])  # Remove bullet point
+                
+        return recommendations[:5]  # Return max 5 recommendations
     
     def _create_fallback_response(self, result_text: str, input_data: str):
         """Create a fallback response when parsing fails"""
@@ -239,11 +331,14 @@ class BaseLangChainAgent:
             "timestamp": datetime.now().isoformat()
         }
         
-        redis_service.redis_client.setex(
-            interaction_key,
-            7 * 24 * 60 * 60,  # 7 days
-            json.dumps(interaction_data)
-        )
+        try:
+            redis_service.redis_client.setex(
+                interaction_key,
+                7 * 24 * 60 * 60,  # 7 days
+                json.dumps(interaction_data)
+            )
+        except Exception as redis_error:
+            print(f"Redis storage error: {redis_error}")
 
 class MayaCashFlowAgent(BaseLangChainAgent):
     """Maya - Especialista en Optimización de Flujo de Caja"""

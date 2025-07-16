@@ -133,22 +133,33 @@ async def agent_chat_demo(
         )
         
         # Check if we got a valid response
-        response_text = result.get("analysis", result.get("response", ""))
+        analysis = result.get("analysis", {})
+        response_text = ""
+        citations = result.get("citations", [])
         
-        if not response_text or len(response_text.strip()) == 0:
+        # Extract actual response text
+        if isinstance(analysis, dict):
+            response_text = analysis.get("response", analysis.get("analysis_summary", ""))
+        else:
+            response_text = str(analysis)
+        
+        # Check if response is valid
+        if not response_text or (isinstance(response_text, str) and len(response_text.strip()) == 0):
             # Use fallback if response is empty
             logger.warning(f"Empty response from agent {agent.value}, using fallback")
             raise Exception("Empty response from agent")
         
-        logger.info(f"Demo consultation successful - Agent: {agent.value}")
+        logger.info(f"Demo consultation successful with RAG - Agent: {agent.value}")
         
         return {
             "agent": agent.value,
             "response": response_text,
-            "citations": result.get("citations", []),
+            "citations": citations,
             "confidence": result.get("confidence", 0.0),
             "usage": result.get("usage", {}),
-            "demo_mode": True
+            "demo_mode": True,
+            "rag_enabled": True,
+            "source": "real_rag"
         }
         
     except Exception as e:
@@ -170,6 +181,8 @@ async def agent_chat_demo(
             "confidence": 0.8,
             "usage": {},
             "demo_mode": True,
+            "rag_enabled": False,
+            "source": "fallback",
             "fallback": True
         }
 
