@@ -573,7 +573,7 @@ const CostsPricing = () => {
 
                 {priceGap > 0 ? (
                   <div className="bg-warning/10 border border-warning/20 rounded-lg p-4">
-                    <h4 className="font-medium text-warning mb-1">Precio Premium</h4>
+                    <h4 className="font-medium text-warning mb-1">Precio Elevado</h4>
                     <p className="text-sm text-text-secondary">
                       Estás ${priceGap} por encima de la competencia. Asegúrate de justificar el valor.
                     </p>

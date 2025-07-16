@@ -69,7 +69,7 @@ const CostsAndPricing = () => {
   // Product data for pricing analysis
   const [products, setProducts] = useState<Product[]>([
     { id: '1', name: 'Producto Principal', salePrice: 120, variableCostPerUnit: 48, monthlyVolume: 800, contributionMargin: 72, breakEvenUnits: 0 },
-    { id: '2', name: 'Producto Premium', salePrice: 200, variableCostPerUnit: 65, monthlyVolume: 300, contributionMargin: 135, breakEvenUnits: 0 },
+    { id: '2', name: 'Producto Avanzado', salePrice: 200, variableCostPerUnit: 65, monthlyVolume: 300, contributionMargin: 135, breakEvenUnits: 0 },
     { id: '3', name: 'Producto Básico', salePrice: 80, variableCostPerUnit: 35, monthlyVolume: 500, contributionMargin: 45, breakEvenUnits: 0 }
   ])
 
@@ -939,7 +939,7 @@ const CostsAndPricing = () => {
             <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg p-4">
               <h4 className="font-semibold text-purple-600 mb-2">📊 Análisis de Elasticidad</h4>
               <div className="text-sm text-text-secondary space-y-1">
-                <div><strong>Productos premium:</strong> Menos sensibles al precio</div>
+                <div><strong>Productos avanzados:</strong> Menos sensibles al precio</div>
                 <div><strong>Commodities:</strong> Muy sensibles, compite por costos</div>
                 <div><strong>Test A/B:</strong> Prueba precios diferentes en grupos pequeños</div>
               </div>
@@ -949,7 +949,7 @@ const CostsAndPricing = () => {
               <h4 className="font-semibold text-orange-600 mb-2">🔄 Modelos de Ingreso</h4>
               <div className="text-sm text-text-secondary space-y-1">
                 <div><strong>Suscripción:</strong> Ingresos recurrentes predecibles</div>
-                <div><strong>Freemium:</strong> Gratis básico, pago por premium</div>
+                <div><strong>Freemium:</strong> Gratis básico, pago por funciones avanzadas</div>
                 <div><strong>Uso:</strong> Pago por consumo o transacción</div>
               </div>
             </div>

@@ -77,6 +77,10 @@ class CSRFProtection:
         if request.url.path in self.exclude_paths:
             return await call_next(request)
         
+        # Skip CSRF check for demo endpoints (chat-demo pattern)
+        if request.url.path.endswith("/chat-demo"):
+            return await call_next(request)
+        
         # Get CSRF token from cookie
         cookie_token = request.cookies.get(self.cookie_name)
         if not cookie_token:

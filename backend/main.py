@@ -120,6 +120,10 @@ app.include_router(progress.router, prefix="/api/progress", tags=["Learning Prog
 app.include_router(reports.router, prefix="/api", tags=["Reports"])
 app.include_router(langchain_agents.router, prefix="/api", tags=["LangChain AI Agents"])
 
+# Agent endpoints
+from app.routers import agents
+app.include_router(agents.router, prefix="/api", tags=["Agents"])
+
 # New API integrations
 app.include_router(notifications.router, tags=["Notifications"])
 app.include_router(search.router, tags=["Search"]) 

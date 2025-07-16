@@ -79,7 +79,7 @@ const AGENT_CONFIGS: Agent[] = [
     }
   },
   {
-    id: 'financial-advisor',
+    id: 'maya',
     name: 'Asesor Financiero IA',
     description: 'Analiza tus finanzas y proporciona recomendaciones personalizadas',
     status: 'active',
@@ -166,21 +166,22 @@ const AIAgents = () => {
   const agents: Agent[] = AGENT_CONFIGS
 
   const sendMessage = async () => {
-    if (chatInput.trim()) {
+    if (chatInput.trim() && selectedAgent) {
       setChatMessages([...chatMessages, { role: 'user', content: chatInput }])
       const userMessage = chatInput
       setChatInput('')
       
       try {
-        // Use RAG endpoint for real AI response
-        const response = await fetch('/api/agents/financial-advisor/book-qa', {
+        // Use RAG endpoint for real AI response with selected agent
+        const response = await fetch(`/api/agents/${selectedAgent}/chat-demo`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify({
             question: userMessage,
-            user_context: {
+            context: {
               company_name: 'Tu negocio',
               industry: 'general'
             }
@@ -189,48 +190,60 @@ const AIAgents = () => {
         
         if (response.ok) {
           const data = await response.json()
-          if (data.success && data.result) {
-            let responseText = data.result.answer || data.result.analysis || 'Análisis completado.'
+          if (data.response) {
+            let responseText = data.response
             
             // Add citations if available
-            if (data.result.citations && data.result.citations.length > 0) {
-              responseText += '\n\n📚 Basado en:\n'
-              data.result.citations.forEach((citation: any, index: number) => {
-                responseText += `• ${citation.chapter}\n`
+            if (data.citations && data.citations.length > 0) {
+              responseText += '\n\n📚 Referencias del libro:\n'
+              data.citations.forEach((citation: any, index: number) => {
+                responseText += `• ${citation.chapter || citation}\n`
               })
             }
             
             setChatMessages(prev => [...prev, { role: 'agent', content: responseText }])
           } else {
             // Fallback to simulated response
-            const agentResponse = getAgentResponse(userMessage)
+            const agentResponse = getAgentResponse(userMessage, selectedAgent)
             setChatMessages(prev => [...prev, { role: 'agent', content: agentResponse }])
           }
         } else {
           // Fallback to simulated response
-          const agentResponse = getAgentResponse(userMessage)
+          const agentResponse = getAgentResponse(userMessage, selectedAgent)
           setChatMessages(prev => [...prev, { role: 'agent', content: agentResponse }])
         }
       } catch (error) {
         // Fallback to simulated response
-        const agentResponse = getAgentResponse(userMessage)
+        const agentResponse = getAgentResponse(userMessage, selectedAgent)
         setChatMessages(prev => [...prev, { role: 'agent', content: agentResponse }])
       }
     }
   }
 
-  const getAgentResponse = (input: string) => {
+  const getAgentResponse = (input: string, agentId: string) => {
     const lowerInput = input.toLowerCase()
     
-    if (lowerInput.includes('flujo') || lowerInput.includes('caja')) {
-      return 'Analizando tu flujo de caja... Tu flujo actual es de $85,430 MXN con tendencia positiva. Te recomiendo mantener una reserva de al menos 2 meses de gastos operativos ($550,000 MXN).'
-    } else if (lowerInput.includes('crecimiento') || lowerInput.includes('crecer')) {
-      return 'Basado en tu desempeño actual, identifico 3 oportunidades clave: 1) Expandir tu línea de productos más rentable (45% margen), 2) Optimizar precios en productos con demanda elástica (+8% potencial), 3) Reducir CAC mediante referidos (-23% costo).'
-    } else if (lowerInput.includes('reporte') || lowerInput.includes('informe')) {
-      return 'Puedo generar varios tipos de reportes: Financiero mensual, Unit Economics, Análisis de rentabilidad por producto, o un Ejecutivo completo. ¿Cuál necesitas?'
-    } else {
-      return 'Entiendo tu consulta. Basándome en tus métricas actuales, tu negocio muestra indicadores saludables con un ROI del 28.5% y un ratio LTV/CAC de 3.1x. ¿En qué área específica puedo ayudarte más?'
+    // Agent-specific fallback responses based on the backend fallback
+    const agentResponses = {
+      'maya': "Como Maya, tu especialista en flujo de caja, he analizado tu consulta. Basándome en el libro 'Finanzas para Emprendedores', te recomiendo mantener un flujo de caja positivo siguiendo la regla 3-6-9: 3 meses de gastos en reserva, 6 meses de proyección y 9 meses de planificación estratégica.",
+      'carlos': "Soy Carlos, analista de economía unitaria. Según el Capítulo 5 del libro, para optimizar tu LTV/CAC necesitas: 1) Medir el valor de vida del cliente correctamente, 2) Calcular el costo de adquisición real incluyendo todos los canales, 3) Mantener un ratio LTV:CAC de al menos 3:1.",
+      'sofia': "Como Sofia, estratega de crecimiento, basándome en los Capítulos 6-9 del libro, te sugiero: analizar las oportunidades de mercado, optimizar tus canales de adquisición más rentables y escalar de manera sostenible manteniendo la calidad.",
+      'alex': "Soy Alex, especialista en riesgos. El libro enfatiza en los Capítulos 11-12 la importancia de: identificar riesgos financieros temprano, diversificar fuentes de ingresos y mantener indicadores de alerta para proteger la estabilidad financiera.",
+      'diana': "Como Diana, optimizadora de rendimiento, según los Capítulos 13-15 del libro, recomiendo: analizar la eficiencia operacional, identificar cuellos de botella en procesos y implementar mejoras que aumenten la productividad sin incrementar costos proporcionalmente."
     }
+    
+    const response = agentResponses[agentId as keyof typeof agentResponses] || agentResponses['maya']
+    
+    // Add context-specific additions based on user input
+    if (lowerInput.includes('flujo') || lowerInput.includes('caja')) {
+      return response + '\n\n💡 Tip específico: Mantén un control diario de entradas y salidas para anticipar problemas de liquidez.'
+    } else if (lowerInput.includes('crecimiento') || lowerInput.includes('crecer')) {
+      return response + '\n\n📈 Recomendación: Enfócate primero en retener clientes existentes antes de buscar nuevos - es 5x más barato.'
+    } else if (lowerInput.includes('riesgo') || lowerInput.includes('seguridad')) {
+      return response + '\n\n⚠️ Alerta: Diversifica tus fuentes de ingresos - no dependas de un solo cliente o canal.'
+    }
+    
+    return response
   }
 
   const toggleAgentStatus = (agentId: string) => {
@@ -365,17 +378,63 @@ const AIAgents = () => {
 
       {/* Interactive Chat */}
       <div className="bg-surface border border-border rounded-xl p-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <MessageSquare className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold text-text-primary">Chat con Agentes IA</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <MessageSquare className="w-5 h-5 text-primary" />
+            <h3 className="text-lg font-semibold text-text-primary">Chat con Agentes IA</h3>
+          </div>
+          
+          {/* Agent Selector */}
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-text-secondary">Agente:</span>
+            <select
+              value={selectedAgent || ''}
+              onChange={(e) => setSelectedAgent(e.target.value)}
+              className="bg-surface border border-border rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">Selecciona un agente</option>
+              <option value="maya">Maya - Flujo de Caja</option>
+              <option value="carlos">Carlos - Unit Economics</option>
+              <option value="sofia">Sofia - Crecimiento</option>
+              <option value="alex">Alex - Riesgos</option>
+              <option value="diana">Diana - Performance</option>
+            </select>
+          </div>
         </div>
+
+        {/* Selected Agent Info */}
+        {selectedAgent && (
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mb-4">
+            <div className="flex items-center space-x-2">
+              <Bot className="w-4 h-4 text-primary" />
+              <span className="text-sm text-primary font-medium">
+                Chateando con {
+                  selectedAgent === 'maya' ? 'Maya (Especialista en Flujo de Caja)' :
+                  selectedAgent === 'carlos' ? 'Carlos (Analista Unit Economics)' :
+                  selectedAgent === 'sofia' ? 'Sofia (Estratega de Crecimiento)' :
+                  selectedAgent === 'alex' ? 'Alex (Especialista en Riesgos)' :
+                  selectedAgent === 'diana' ? 'Diana (Optimizadora de Performance)' :
+                  'Agente IA'
+                }
+              </span>
+            </div>
+            <p className="text-xs text-text-secondary mt-1">
+              Respuestas basadas en el libro "Finanzas para Emprendedores" y análisis con IA real
+            </p>
+          </div>
+        )}
 
         {/* Chat Messages */}
         <div className="bg-surface-light rounded-lg p-4 h-80 overflow-y-auto mb-4">
           {chatMessages.length === 0 ? (
             <div className="text-center text-text-secondary py-8">
               <Bot className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>Pregúntame sobre tus finanzas, estrategias de crecimiento o cualquier análisis que necesites.</p>
+              <p>
+                {selectedAgent 
+                  ? "Pregúntame sobre tus finanzas, estrategias de crecimiento o cualquier análisis que necesites."
+                  : "Selecciona un agente especializado para comenzar el chat."
+                }
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -389,7 +448,7 @@ const AIAgents = () => {
                       ? 'bg-primary text-background' 
                       : 'bg-background border border-border'
                   }`}>
-                    <p className="text-sm">{msg.content}</p>
+                    <p className="text-sm whitespace-pre-line">{msg.content}</p>
                   </div>
                 </div>
               ))}
@@ -404,12 +463,14 @@ const AIAgents = () => {
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            placeholder="Escribe tu pregunta aquí..."
-            className="flex-1 px-4 py-2 bg-surface-light border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+            placeholder={selectedAgent ? "Escribe tu pregunta aquí..." : "Selecciona un agente primero"}
+            disabled={!selectedAgent}
+            className="flex-1 px-4 py-2 bg-surface-light border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
           />
           <button
             onClick={sendMessage}
-            className="bg-primary hover:bg-primary-dark text-background px-4 py-2 rounded-lg font-medium transition-colors"
+            disabled={!selectedAgent || !chatInput.trim()}
+            className="bg-primary hover:bg-primary-dark text-background px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Enviar
           </button>
